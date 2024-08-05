@@ -1,0 +1,24 @@
+{
+    "name": "sat-holology",
+    "version": "1.0.0",
+    "dependencies": [
+        {
+            "name": "jsoncpp"
+        },
+        {
+            "name": "sqlite3"
+        },
+        {
+            "name": "lua"
+        },
+        {
+            "name": "glfw3"
+        },
+        {
+            "name": "glew"
+        },
+        {
+            "name": "gtest"
+        }
+    ]
+}

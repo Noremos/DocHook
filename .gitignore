@@ -1,0 +1,43 @@
+Debug/*
+.vs
+libs/glfw/docs
+libs/glfw/lib-vc2012
+libs/glfw/lib-vc2013
+libs/glfw/lib-vc2015
+libs/glfw/lib-vc2017
+# libs/glfw/lib-vc2019
+# libs/glfw/lib-mingw-*
+imgui.ini
+# libs/lua
+# side/lua
+# libs/Lua2
+Proga
+# side/glm
+shaders
+side/glaze-1.0.0.zip
+Temp/*
+Release/GeoBar.*
+Release/EPSG-v10_084-WKT
+Release/EPSG
+vcpkg_installed
+Release/*.dll
+Build/Debug
+Build/Release
+Build/Temp
+.vs
+Build/Release.zip
+imgui.ini
+side/KmeansPlusPlus
+packages
+Tests/x64
+x64
+Tests/Temp
+Build/Temp
+Tests/SatTests
+Build/SatTests
+Build/compile_commands.json
+.cache
+imgui.ini
+.DS_Store
+m
+*.bin

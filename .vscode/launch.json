@@ -1,0 +1,59 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Tests",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build/Temp/SatTests",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Test Bar",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/side/Barcode/PrjBarlib/Tests/Build/BarTests",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "SatHomology",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build/Debug/SatHomology",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "name": "Build SatHomology",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build/Debug/SatHomology",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Release",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build/Release/SatHomology",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            // "args": ["/tmp/input_array.txt", "SpectralCoclustering", "{\"n_clusters\":2}"],
+            "args": ["/tmp/input_array.bin", "hierarchical", "2"],
+            "justMyCode": true
+        },
+    ]
+}

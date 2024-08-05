@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\backend\BackTypes.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\Barcode\PrjBarlib\modules\Barcode.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\Barcode\PrjBarlib\modules\Barscalar.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\Barcode\PrjBarlib\modules\BarTypes.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\CachedBarcode.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Bind\Common.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Clusterizers\LandscapeItem.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\CSBind.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Bind\Framework.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\GeoProcessor.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Interfaces\ICluster.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Interfaces\IItem.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Bind\Json.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\MatrImg.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\MetadataIO.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Bind\MHashMap.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Interfaces\MLClasses.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\Barcode\PrjBarlib\modules\StateBinFile.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\project.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\ProjectSettings.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Bind\Side.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\Barcode\PrjBarlib\modules\BarImg.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Layers\layerInterface.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Layers\RasterLineLayer.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Clusterizers\MLSettings.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Clusterizers\ExteranlReader.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\Barcode\PrjBarlib\modules\ImageReader.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\Layers\layers.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\Barcode\PrjBarlib\modules\TiffReader.ixx">
+      <Filter>Зависимости</Filter>
+    </ClCompile>
+    <ClCompile Include="..\backend\SimpleImgReader.ixx">
+      <Filter>NewFilter1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\fpng\fpng.cpp">
+      <Filter>NewFilter1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\side\sago\platform_folders.cpp">
+      <Filter>NewFilter1</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Зависимости">
+      <UniqueIdentifier>{4df02ae6-c8cb-4ebe-bc3e-73350ad13634}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NewFilter1">
+      <UniqueIdentifier>{72cfaf4a-ed14-4ed7-b19b-7649ddd7d79d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

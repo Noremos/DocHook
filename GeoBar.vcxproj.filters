@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Backend">
+      <UniqueIdentifier>{64f7ec62-3276-4567-8873-8fcd9bf1ea82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Barcode">
+      <UniqueIdentifier>{1143bbac-360a-4d74-9348-ba8b2d78ade1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Side">
+      <UniqueIdentifier>{f13c016b-6080-4d17-9175-6a9c0ee2e169}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Barcode\modules">
+      <UniqueIdentifier>{3830fb1f-c201-41bf-bc10-e214906634eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{38104a2c-7ea1-49a6-a83d-b611fcb16364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Core">
+      <UniqueIdentifier>{6554f127-e3cd-4f97-9989-751f472a38c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend\Bind">
+      <UniqueIdentifier>{0c2426f0-241b-42ea-8959-992252c682fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\BaseWidgets">
+      <UniqueIdentifier>{7f8165fd-e084-4de4-835c-bf3b77bebe9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\WindowWidgets">
+      <UniqueIdentifier>{a9993416-ea44-4b29-b242-09d275d590c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend\Interfaces">
+      <UniqueIdentifier>{d451a9f2-ba30-496b-8a09-4039903ed226}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend\Impl">
+      <UniqueIdentifier>{8b38a57b-8748-4c48-a38a-8a7dcb5a2b8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\imgui">
+      <UniqueIdentifier>{ba81dd01-1cfe-4bbb-b8e0-e9b39aed6240}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend\Cluster">
+      <UniqueIdentifier>{9f8812a2-211a-4047-b1d6-d1189e7bb8f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\layers">
+      <UniqueIdentifier>{3f28cf28-99f6-4038-9564-1b42395ff0f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend\ML">
+      <UniqueIdentifier>{ad2b4ae3-0f46-45d8-bf2d-52050efd7303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend\Algs">
+      <UniqueIdentifier>{15b99d3b-4e80-4757-855a-04fee3c4c59e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\imgui\Plot">
+      <UniqueIdentifier>{3340dc17-e495-40cc-92d9-e997e485aab2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="side\imgui\imgui.cpp">
+      <Filter>GUI\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="side\imgui\imgui_demo.cpp">
+      <Filter>GUI\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="side\imgui\imgui_draw.cpp">
+      <Filter>GUI\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="side\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>GUI\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="side\imgui\imgui_tables.cpp">
+      <Filter>GUI\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="side\imgui\imgui_widgets.cpp">
+      <Filter>GUI\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\project.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="side\sago\platform_folders.cpp">
+      <Filter>Side</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\DrawCommon.h">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\SimpleImgReader.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="side\Barcode\PrjBarlib\modules\Barcode.ixx">
+      <Filter>Barcode\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\MatrImg.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\frontend.ixx">
+      <Filter>GUI\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="side\Barcode\PrjBarlib\modules\TiffReader.ixx">
+      <Filter>Barcode\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\DrawUtils.ixx">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Application.cpp">
+      <Filter>GUI\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\main.cpp">
+      <Filter>GUI\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Bind\Side.ixx">
+      <Filter>Backend\Bind</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\GuiLayers.ixx">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Object3d.ixx">
+      <Filter>GUI\BaseWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Viewer3d.ixx">
+      <Filter>GUI\BaseWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\GuiOverlap.ixx">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Bind\Json.ixx">
+      <Filter>Backend\Bind</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\GuiClassifier.ixx">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\GuiWidgets.ixx">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\TrainData.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="Bind\Framework.ixx">
+      <Filter>Backend\Bind</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\GeoProcessor.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Classifer\ClassInterface.ixx">
+      <Filter>Backend\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Layers\layerInterface.ixx">
+      <Filter>Backend\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Classifer\ClassicBarClassifer.ixx">
+      <Filter>Backend\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Layers\layers.ixx">
+      <Filter>Backend\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\MetadataIO.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\BackTypes.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\BarChart.ixx">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Layers\VectorLayers.ixx">
+      <Filter>Backend\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\CSBind.ixx">
+      <Filter>Backend\Bind</Filter>
+    </ClCompile>
+    <ClCompile Include="Bind\MHashMap.ixx">
+      <Filter>Backend\Bind</Filter>
+    </ClCompile>
+    <ClCompile Include="side\GuiCodeEditor.cpp">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="side\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>GUI\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="side\fpng\fpng.cpp">
+      <Filter>Side</Filter>
+    </ClCompile>
+    <ClCompile Include="side\Barcode\PrjBarlib\modules\ImageReader.ixx" />
+    <ClCompile Include="backend\Clusterizers\KmeansClassifer.ixx">
+      <Filter>Backend\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\ProjectSettings.ixx" />
+    <ClCompile Include="frontend\Widgets\DynamicSettings.ixx" />
+    <ClCompile Include="side\Barcode\PrjBarlib\modules\StateBinFile.ixx">
+      <Filter>Barcode\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Clusterizers\TSLearn.ixx">
+      <Filter>Backend\Cluster</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Clusterizers\SKLearn.ixx">
+      <Filter>Backend\Cluster</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Clusterizers\TreeSignClass.ixx">
+      <Filter>Backend\Cluster</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Widgets\GuiClusterization.ixx">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Interfaces\ICluster.ixx">
+      <Filter>Backend\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Interfaces\IItem.ixx">
+      <Filter>Backend\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Templates\GuiRLayerTemplates.ixx">
+      <Filter>GUI\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Layers\GuiRasterLineLayer.ixx">
+      <Filter>GUI\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Layers\GuiLuaLayers.ixx">
+      <Filter>GUI\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\Layers\GuiRasterLayers.ixx">
+      <Filter>GUI\layers</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\CachedBarcode.ixx">
+      <Filter>Backend\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Layers\GroupLayer.ixx">
+      <Filter>Backend\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Clusterizers\ExteranlReader.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Clusterizers\MLSettings.ixx">
+      <Filter>Backend\ML</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Interfaces\MLClasses.ixx">
+      <Filter>Backend\ML</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Clusterizers\LandscapeItem.ixx">
+      <Filter>Backend\ML</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Clusterizers\SortItem.ixx">
+      <Filter>Backend\ML</Filter>
+    </ClCompile>
+    <ClCompile Include="side\Barcode\PrjBarlib\modules\BarImg.ixx">
+      <Filter>Barcode\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="side\Barcode\PrjBarlib\modules\Barscalar.ixx">
+      <Filter>Barcode\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="side\Barcode\PrjBarlib\modules\BarTypes.ixx">
+      <Filter>Barcode\modules</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Interfaces\IAlg.ixx">
+      <Filter>Backend\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Algs\Energy.ixx">
+      <Filter>Backend\Algs</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Algs\CachedBarcodeAlg.ixx">
+      <Filter>Backend\Algs</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Layers\SimpleLineDisplay.ixx" />
+    <ClCompile Include="frontend\Layers\GuiVectorLayers.ixx" />
+    <ClCompile Include="frontend\Widgets\DrawBarcode.ixx">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Layers\RasterLineLayer.ixx">
+      <Filter>Backend\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Classifer\Classifier.ixx">
+      <Filter>Backend\ML</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\GuiITemPrevew.ixx">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Algs\Exp.ixx">
+      <Filter>Backend\Algs</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\Algs\CoreLoaders.ixx">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="side\implot\implot.cpp">
+      <Filter>GUI\imgui\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="side\implot\implot_demo.cpp">
+      <Filter>GUI\imgui\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="side\implot\implot_items.cpp">
+      <Filter>GUI\imgui\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="Bind\Common.ixx">
+      <Filter>Backend\Bind</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="side\imgui\imgui_internal.h">
+      <Filter>GUI\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="side\imgui\imgui.h">
+      <Filter>GUI\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="side\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>GUI\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="side\imgui\backends\imgui_impl_opengl3_loader.h">
+      <Filter>GUI\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="frontend\FrontTypes.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="side\IconsFontAwesome5.h">
+      <Filter>Side</Filter>
+    </ClInclude>
+    <ClInclude Include="side\PortFileDialog.h">
+      <Filter>Side</Filter>
+    </ClInclude>
+    <ClInclude Include="side\stb_image.h">
+      <Filter>Side</Filter>
+    </ClInclude>
+    <ClInclude Include="frontend\Application.h">
+      <Filter>GUI\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="side\imconfig.h" />
+    <ClInclude Include="side\GuiCodeEditor.h">
+      <Filter>GUI\WindowWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="side\imgui\backends\imgui_impl_glfw.h">
+      <Filter>GUI\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Bind\Lua.h">
+      <Filter>Backend\Bind</Filter>
+    </ClInclude>
+    <ClInclude Include="side\kde.h">
+      <Filter>Side</Filter>
+    </ClInclude>
+    <ClInclude Include="side\implot\implot.h">
+      <Filter>GUI\imgui\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="side\implot\implot_internal.h">
+      <Filter>GUI\imgui\Plot</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="side\imgui\misc\debuggers\imgui.natvis">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+  </ItemGroup>
+</Project>
