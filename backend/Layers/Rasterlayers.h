@@ -444,6 +444,8 @@ public:
 		setSubImage(0, true);
 		if (!reader->ready)
 			return;
+
+		images.push_back(getRect(0,0, realWidth(), realHeight()));
 	}
 
 	int getSubImage() override

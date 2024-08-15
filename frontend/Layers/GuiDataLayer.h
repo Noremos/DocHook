@@ -12,6 +12,7 @@
 #include "../Bind/Framework.h"
 #include "../../backend/Layers/layerInterface.h"
 #include "../../backend/Layers/Rasterlayers.h"
+#include "../../backend/Layers/VectorLayers.h"
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
 
@@ -19,7 +20,6 @@
 // import RasterLayers;
 // import BarcodeModule;
 import GuiOverlap;
-import VectorLayers;
 // import CSBind;
 // import Platform;
 //import BackBind;

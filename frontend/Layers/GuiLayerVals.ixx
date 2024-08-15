@@ -11,6 +11,7 @@ module;
 #include "../../backend/Layers/layerInterface.h"
 #include "../../backend/Layers/Rasterlayers.h"
 #include "../../backend/project.h"
+#include "../../backend/Layers/VectorLayers.h"
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
 
@@ -20,7 +21,6 @@ export module GuiLayers;
 // import RasterLayers;
 // import BarcodeModule;
 import GuiOverlap;
-import VectorLayers;
 // import CSBind;
 // import Platform;
 //import BackBind;

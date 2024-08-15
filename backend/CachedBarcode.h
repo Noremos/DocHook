@@ -32,24 +32,112 @@ import MHashMap;
 
 MEXPORT class CachedBaritemHolder;
 
-MEXPORT class CachedBarline : public IClassItem
+
+MEXPORT class BarlineWrapper : public IClassItem
 {
 	//static unsigned int idCounter;
 public:
-	buint id;
-	buint parentId;
-	std::unique_ptr<buint[]> children;
-	buint childrenCount;
 	Barscalar startl, endl;
 	bc::barvector matrix;
 	//int matrix;
-	unsigned char depth;
+	unsigned char depth = 0;
 
-	CachedBaritemHolder* root;
+	BarlineWrapper() : IClassItem(),
+		startl(uchar(0)), endl(uchar(0))
+	{ }
 
-	CachedBarline() : IClassItem(),
-		id(0), parentId(-1), children(nullptr), childrenCount(0),
-		startl(uchar(0)), endl(uchar(0)), matrix(), depth(0), root(nullptr)
+	BarlineWrapper(const BarlineWrapper& other) = default;
+	BarlineWrapper(BarlineWrapper&& other) noexcept = default;
+
+	BarlineWrapper& operator=(const BarlineWrapper& other) = default;
+	BarlineWrapper& operator=(BarlineWrapper&& other) noexcept = default;
+
+	BarlineWrapper(bc::barline* line) : IClassItem()
+	{
+		update(line);
+	}
+
+	virtual ~BarlineWrapper()
+	{}
+
+	void update(bc::barline* line)
+	{
+		assert(line);
+		startl = line->start;
+		endl = line->end();
+		//matrix = (int)line->getPointsSize();
+		matrix = std::move(line->getMatrix());
+		depth = (buchar)line->getDeath();
+	}
+
+	virtual size_t getId() const override
+	{
+		return -1;
+	}
+
+	virtual size_t getParentId() const override
+	{
+		return -1;
+	}
+
+	virtual int getDeath() const override
+	{
+		return (int)depth;
+	}
+
+	virtual Barscalar start() const override
+	{
+		return startl;
+	}
+
+	virtual Barscalar end() const override
+	{
+		return endl;
+	}
+
+	Barscalar length() const
+	{
+		return startl > endl ? endl - startl : startl - endl;
+	}
+
+	virtual const bc::barvector& getMatrix() const override
+	{
+		return matrix;
+		//static bc::barvector dummy;
+		//return dummy;
+	}
+
+	virtual const size_t getMatrixSize() const override
+	{
+		//return matrix;
+		return matrix.size();
+	}
+
+	size_t getChildrenCount() const
+	{
+		return 0;
+	}
+
+	virtual void saveLoadState(StateBinFile::BinState* state) override
+	{
+		assert(false);
+	}
+};
+
+
+
+MEXPORT class CachedBarline : public BarlineWrapper
+{
+	//static unsigned int idCounter;
+public:
+	buint id = 0;
+	buint parentId = -1;
+	std::unique_ptr<buint[]> children;
+	buint childrenCount = 0;
+
+	CachedBaritemHolder* root = nullptr;
+
+	CachedBarline() : BarlineWrapper()
 	{ }
 
 	CachedBarline(const CachedBarline& other)
@@ -119,7 +207,7 @@ public:
 			assert(false);
 	}
 
-	CachedBarline(buint id, bc::barline* line, CachedBaritemHolder* root) : IClassItem()
+	CachedBarline(buint id, bc::barline* line, CachedBaritemHolder* root) : BarlineWrapper()
 	{
 		update(id, line, root);
 	}
@@ -129,16 +217,10 @@ public:
 
 	void update(buint id, bc::barline* line, CachedBaritemHolder* root)
 	{
+		BarlineWrapper::update(line);
+
 		this->id = id;
 		parentId = -1;
-		assert(line);
-		startl = line->start;
-		endl = line->end();
-		//matrix = (int)line->getPointsSize();
-		matrix = std::move(line->getMatrix());
-		depth = (buchar)line->getDeath();
-		// assert(startl != endl); // Allown for root
-
 		this->root = root;
 	}
 
@@ -155,34 +237,6 @@ public:
 	virtual int getDeath() const override
 	{
 		return (int)depth;
-	}
-
-	virtual Barscalar start() const override
-	{
-		return startl;
-	}
-
-	virtual Barscalar end() const override
-	{
-		return endl;
-	}
-
-	Barscalar length() const
-	{
-		return startl > endl ? endl - startl : startl - endl;
-	}
-
-	virtual const bc::barvector& getMatrix() const override
-	{
-		return matrix;
-		//static bc::barvector dummy;
-		//return dummy;
-	}
-
-	virtual const size_t getMatrixSize() const override
-	{
-		//return matrix;
-		return matrix.size();
 	}
 
 	size_t getChildrenCount() const

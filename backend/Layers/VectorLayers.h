@@ -1,4 +1,4 @@
-module;
+#pragma once
 #include <memory>
 #include <unordered_set>
 #include <algorithm>
@@ -10,7 +10,6 @@ module;
 #include "../../side/Barcode/PrjBarlib/modules/StateBinFile.h"
 #include "../Bind/Framework.h"
 #include "layerInterface.h"
-export module VectorLayers;
 //import std.core;
 //import BackBind;
 // import LayersCore;
@@ -25,7 +24,7 @@ using LayerMetaProvider = MetadataProvider;
 
 
 template<class FR>
-static void saveLoadChar(JsonObjectIOState* state, const char* name, FR& val)
+inline void saveLoadChar(JsonObjectIOState* state, const char* name, FR& val)
 {
 	int valInt = static_cast<int>(val);
 	state->scInt(name, valInt);
@@ -33,7 +32,7 @@ static void saveLoadChar(JsonObjectIOState* state, const char* name, FR& val)
 }
 
 
-export class DrawPrimitive
+class DrawPrimitive
 {
 public:
 	int id;
@@ -47,6 +46,12 @@ public:
 	{
 		points.push_back(p);
 	}
+
+	void addPoint(double x, double y)
+	{
+		points.push_back({x,y});
+	}
+
 
 	void setCircle(BackPoint p, BackPoint r)
 	{
@@ -151,7 +156,7 @@ public:
 	}
 };
 
-export class VectorLayer : public IVectorLayer
+class VectorLayer : public IVectorLayer
 {
 	int binId = -1;
 
@@ -243,15 +248,5 @@ public:
 		json += "}";
 
 		WriteFile(savePath, json);
-	}
-};
-
-export class MultiVectorLayer : public IVectorLayer
-{
-public:
-	std::vector<DrawPrimitive> primitives;
-	virtual const LFID getFactoryId() const
-	{
-		return MULTIPOLY_VECTOR_LAYER_FID;
 	}
 };

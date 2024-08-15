@@ -8,10 +8,10 @@ module;
 #include "GuiDataLayer.h"
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
+#include "../../backend/Layers/VectorLayers.h"
 
 export module GuiVectorLayers;
 //import BackBind;
-import VectorLayers;
 import GuiLayers;
 
 // import Platform;
@@ -95,12 +95,15 @@ public:
 		if (!Base::data->visible)
 			return;
 
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings
 		 | ImGuiWindowFlags_NoScrollWithMouse;
 
 
+		 ImGuiChildFlags child_flags = ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY;
+
+
 		ImGui::SetCursorPos(ds.getDrawPos());
-		if (!ImGui::BeginChild(Base::data->name.c_str(), ds.getDrawSize(), false, window_flags))
+		if (!ImGui::BeginChild(Base::data->name.c_str(), ds.getDrawSize(), child_flags, window_flags))
 		{
 			ImGui::EndChild();
 			return;

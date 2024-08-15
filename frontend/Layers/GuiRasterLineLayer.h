@@ -12,17 +12,8 @@
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
 
-
-//import BackBind;
-// import IItemModule;
-// import RasterLayers;
 import GuiOverlap;
-// import RasterLineLayerModule;
-//import SimpleLine;
-
 import GuiLayers;
-//GuiBackend backend;
-
 import GuiFilter;
 
 class RasterLineGuiLayer : public ITiledRasterGuiLayer<GuiDrawCloudPointClick, RasterLineLayer>

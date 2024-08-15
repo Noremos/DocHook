@@ -22,6 +22,7 @@
 #include "../backend/Layers/layerInterface.h"
 #include "../backend/Layers/Rasterlayers.h"
 #include "../backend/Layers/RasterLineLayer.h"
+#include "../backend/Layers/VectorLayers.h"
 #include "../backend/ScreenCapture.h"
 #include "Layers/GuiRasterLayers.h"
 #include "Layers/IGuiLayer.h"
@@ -34,7 +35,6 @@ import GuiLayers;
 // import BarcodeModule;
 import GuiOverlap;
 
-import VectorLayers;
 import GuiVectorLayers;
 
 // import ProjectSettings;
@@ -96,7 +96,82 @@ public:
 	}
 
 
+	VectorLayer* addVectorLayer()
+	{
+		return proj->addLayerData<VectorLayer>();
+	}
 
+
+	void process(BackImage& img, VectorLayer* vec, bc::barstruct& constr, IItemFilter* filter)
+	{
+		// constr.proctype = bc::ProcType::f0t255;
+		bc::BarcodeCreator creator;
+		std::unique_ptr<bc::Baritem> citem(bc::BarcodeCreator::create(img, constr));
+
+		bc::Baritem* item = citem.get();
+		int size = (int)item->barlines.size();
+
+		for (int i = 0; i < size; i++)
+		{
+			bc::barline* line = item->barlines[i];
+
+			if (line->matr.size() < 40)
+				continue;
+
+			if (filter)
+			{
+				BarlineWrapper wrap(line);
+				if (!filter->pass(&wrap))
+					continue;
+			}
+
+			auto rect = line->getBarRect();
+			DrawPrimitive* priv = vec->addPrimitive({10,100,40});
+			priv->addPoint(rect.x, rect.y);
+			priv->addPoint(rect.x + rect.width, rect.y);
+			priv->addPoint(rect.x + rect.width, rect.y + rect.height);
+			priv->addPoint(rect.x, rect.y + rect.height);
+		}
+	}
+
+	RetLayers createCacheBarcode2(IRasterLayer* inLayer, const BarcodeProperies& propertices, IItemFilter* filter)
+	{
+		if (filter)
+		{
+			// Input Layer prepatons
+			int tileSize = inLayer->prov.tileSize;
+			int tileOffset = inLayer->tileOffset;
+
+			const buint fullTile = tileSize + tileOffset;
+			filter->imgLen = fullTile * fullTile;
+		}
+
+		BackImage img = inLayer->getImage(100000);
+
+		VectorLayer* vec = addVectorLayer();
+		vec->vecType = VectorLayer::VecType::polygons;
+
+		const auto start = std::chrono::steady_clock::now();
+		// Setup
+		bc::barstruct constr = propertices.get();
+		constr.coltype = bc::ColorType::gray;
+
+		// constr.proctype = bc::ProcType::f0t255;
+		// process(img, vec, constr, filter);
+
+		// constr.proctype = bc::ProcType::f255t0;
+		// process(img, vec, constr, filter);
+
+		constr.proctype = bc::ProcType::Radius;
+		process(img, vec, constr, filter);
+
+		const auto end = std::chrono::steady_clock::now();
+		const auto diff = end - start;
+		const double len = std::chrono::duration<double, std::milli>(diff).count();
+		printf("All works ended in %dms\n", (int)len);
+
+		return {vec};
+	}
 
 	inline RasterFromDiskLayer* loadImage(const BackPathStr& path, int step)
 	{
@@ -119,11 +194,6 @@ public:
 		dropDirIfExists(proj->getPath(BackPath::metadata));
 		loadImage(imgPath, 1);
 		proj->state = GuiState::Loaded;
-	}
-
-	VectorLayer* addVectorLayer()
-	{
-		return proj->addLayerData<VectorLayer>();
 	}
 
 	void removeLayer(buint id)
@@ -357,11 +427,23 @@ namespace MyApp
 		uint32_t winId = 0;
 	};
 
-	void createBarWindow(InOutLayer* io)
+	void createBarWindow(IRasterLayer* inLayer)
 	{
 		BarcodeProperies barset;
-		RetLayers ret = backend.createCacheBarcode(*io, barset, nullptr);
+
+		RetLayers ret = backend.createCacheBarcode2(inLayer, barset, nullptr);
 		layersVals.setLayers(ret, "barcode");
+	}
+
+	void createBarLayers(const BackImage& img)
+	{
+		RasterLayer* layer = backend.proj->addLayerData<RasterLayer>();
+		layer->mat = img;
+
+		RasterGuiLayer* guiLayer = layersVals.addLayer<RasterGuiLayer, RasterLayer>("Loaded", layer);
+		guiLayer->lockAtThis(layersVals.lastRealSize);
+
+		createBarWindow(layer);
 	}
 
 	constexpr float itemWidth = 100.0f;
@@ -378,10 +460,9 @@ namespace MyApp
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
-
-		if (ImGui::BeginPopupModal("Превью", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("Превью", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
 		{
-			const float topMargin = 50.0f;
+			const float topMargin = 20.0f;
 			const float margin = 20.0f;
 
 			const float itemWidthWithMargin = itemWidth + margin;
@@ -403,32 +484,22 @@ namespace MyApp
 					ImgData& data = images[i + j * rows];
 					ImGui::PushID(data.winId);
 
-					ImGui::SetCursorPos(ImVec2(x, y));
+					auto textWidth   = ImGui::CalcTextSize(data.name.c_str()).x;
+					int maxWidth = std::max<int>(data.img.width, textWidth);
+
+					ImGui::SetCursorPos(ImVec2(x + (maxWidth - data.img.width) / 2, y));
 					ImVec2 size(data.img.width, data.img.height);
 					if (ImGui::ImageButton(data.img.getTexturePtr(), size))
 					{
-						// selectedImgData = &data;
-						// ImGui::OpenPopup("ImgPreview");
-
-						RasterLineLayer* layer = backend.proj->addLayerData<RasterLineLayer>();
-						layer->mat = data.src;
-
-						RasterLineGuiLayer* guiLayer = layersVals.addLayer<RasterLineGuiLayer>("Loaded", layer);
-						guiLayer->lockAtThis(layersVals.lastRealSize);
-
-						createBarWindow(layersVals.getIoLayer());
-
-
+						createBarLayers(data.src);
 						ImGui::CloseCurrentPopup();
-
 					}
 
-					ImGui::SetCursorPos(ImVec2(x, y + size.y + 20));
-					// data.img.drawImage("##ImgPreview", ImVec2(itemWidth, itemHeight), ImVec2(0, 1));
+					ImGui::SetCursorPos(ImVec2(x + (maxWidth - textWidth) / 2 , y + size.y + 20));
 					ImGui::Text("%s", data.name.data());
 					ImGui::PopID();
 
-					x += size.x + margin;
+					x += maxWidth + margin;
 
 
 					// ImGui::SameLine();
@@ -442,11 +513,8 @@ namespace MyApp
 			// 	ImGui::Text(data.name.data());
 			// }
 
+			ImGui::SetCursorPos(ImVec2(x, topMargin + rows * (itemWidthWithMargin) + 20));
 			ImGui::Separator();
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				ImGui::CloseCurrentPopup();
-			}
 
 			ImGui::SetItemDefaultFocus();
 			ImGui::SameLine();
@@ -457,8 +525,6 @@ namespace MyApp
 
 			ImGui::EndPopup();
 		}
-
-
 	}
 
 	void drawTopBar()
@@ -498,14 +564,17 @@ namespace MyApp
 			ImGui::SameLine();
 			if (ImGui::Button(BU8("Скриншот по имени")))
 			{
+				BarcodeProperies barset;
+				RasterFromDiskLayer layer;
+				layer.open("/Users/sam/1.png");
+
+				RetLayers ret = backend.createCacheBarcode2(&layer, barset, nullptr);
+				layersVals.setLayers(ret, "barcode");
+
 				ImageData img = CaptureWindowByName(buffer);
 				if (img.data)
 				{
-					RasterLineLayer* layer = backend.proj->addLayerData<RasterLineLayer>();
-					layer->mat = BackImage(img.width, img.height, img.channels, (uchar*)img.data.get());
-
-					RasterLineGuiLayer* guiLayer = layersVals.addLayer<RasterLineGuiLayer>("Loaded", layer);
-					guiLayer->lockAtThis(layersVals.lastRealSize);
+					createBarLayers(BackImage(img.width, img.height, img.channels, (uchar*)img.data.get()));
 				}
 			}
 
@@ -605,6 +674,7 @@ namespace MyApp
 	{
 		drawTopBar();
 		drawWorkout();
+		layersVals.drawLayersWindow();
 		// drawBottomBar();
 
 		commonValus.onAirC();

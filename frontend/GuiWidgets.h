@@ -332,38 +332,38 @@ public:
 			}
 
 
-			BackPoint& offset = pds.csPos;
-			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) // Drag
-			{
-				offset = offset - toBP(io.MouseDelta) / pds.csScale;
-			}
+			// BackPoint& offset = pds.csPos;
+			// if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) // Drag
+			// {
+			// 	offset = offset - toBP(io.MouseDelta) / pds.csScale;
+			// }
 
-			if (io.MouseWheel != 0) // Wheeled
-			{
-				float ads = io.MouseWheel * 0.1f;
-				// zoom.x += ads;
-				// zoom.y += ads;
-				// zoom.x = zoom.x > 0.1f ? zoom.x : 0.1f;
-				// zoom.y = zoom.y > 0.1f ? zoom.y : 0.1f;
-				BackPoint proc = toBP(mp / realSize);
-				assert(proc.x <= 1.0);
-				assert(proc.y <= 1.0);
+			// if (io.MouseWheel != 0) // Wheeled
+			// {
+			// 	float ads = io.MouseWheel * 0.1f;
+			// 	// zoom.x += ads;
+			// 	// zoom.y += ads;
+			// 	// zoom.x = zoom.x > 0.1f ? zoom.x : 0.1f;
+			// 	// zoom.y = zoom.y > 0.1f ? zoom.y : 0.1f;
+			// 	BackPoint proc = toBP(mp / realSize);
+			// 	assert(proc.x <= 1.0);
+			// 	assert(proc.y <= 1.0);
 
-				auto displayPrev = realSize / pds.csScale;
+			// 	auto displayPrev = realSize / pds.csScale;
 
-				pds.csScale += ads;
-				if (pds.csScale <= 0)
-				{
-					pds.csScale = 0.000001;
-				}
+			// 	pds.csScale += ads;
+			// 	if (pds.csScale <= 0)
+			// 	{
+			// 		pds.csScale = 0.000001;
+			// 	}
 
-				auto displayAfter = realSize / pds.csScale;
+			// 	auto displayAfter = realSize / pds.csScale;
 
-				BackPoint displOff = toBP(displayPrev - displayAfter);
-				// auto displOff = toBP(realSize / ads);
+			// 	BackPoint displOff = toBP(displayPrev - displayAfter);
+			// 	// auto displOff = toBP(realSize / ads);
 
-				offset = offset + displOff * proc;
-			}
+			// 	offset = offset + displOff * proc;
+			// }
 		}
 
 
