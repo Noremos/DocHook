@@ -305,10 +305,10 @@ namespace MyApp
 		style.Colors[ImGuiCol_TitleBg] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
 
 		style.WindowPadding = ImVec2(8, 6);
-		style.WindowRounding = 0.0f;
 		style.FramePadding = ImVec2(5, 7);
 		//style.FrameRounding            = 0.0f;
 		style.ItemSpacing = ImVec2(5, 5);
+		// style.PopupRounding = 1.0;
 		// style.ItemInnerSpacing         = ImVec2(1, 1);
 		// style.TouchExtraPadding        = ImVec2(0, 0);
 		// style.IndentSpacing            = 6.0f;
@@ -459,6 +459,10 @@ namespace MyApp
 
 
 		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.WindowRounding = 1.0;
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 10.0f);
+
 		ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
 		if (ImGui::BeginPopupModal("Превью", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar))
 		{
@@ -487,7 +491,11 @@ namespace MyApp
 					auto textWidth   = ImGui::CalcTextSize(data.name.c_str()).x;
 					int maxWidth = std::max<int>(data.img.width, textWidth);
 
-					ImGui::SetCursorPos(ImVec2(x + (maxWidth - data.img.width) / 2, y));
+					int maxHeight = std::max<int>(data.img.height, itemHeight);
+
+
+					int yoff = (maxHeight - data.img.height) / 2;
+					ImGui::SetCursorPos(ImVec2(x + (maxWidth - data.img.width) / 2, y + yoff));
 					ImVec2 size(data.img.width, data.img.height);
 					if (ImGui::ImageButton(data.img.getTexturePtr(), size))
 					{
@@ -495,7 +503,7 @@ namespace MyApp
 						ImGui::CloseCurrentPopup();
 					}
 
-					ImGui::SetCursorPos(ImVec2(x + (maxWidth - textWidth) / 2 , y + size.y + 20));
+					ImGui::SetCursorPos(ImVec2(x + (maxWidth - textWidth) / 2 , y + size.y + yoff + 20));
 					ImGui::Text("%s", data.name.data());
 					ImGui::PopID();
 
@@ -525,6 +533,8 @@ namespace MyApp
 
 			ImGui::EndPopup();
 		}
+
+		ImGui::PopStyleVar(1);
 	}
 
 	void drawTopBar()
@@ -679,7 +689,7 @@ namespace MyApp
 
 		commonValus.onAirC();
 
-		ImPlot::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 	}
 
 	constexpr ImVec2 toDVec2(const bc::point& p)
