@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <unordered_set>
 #include <random>
@@ -19,26 +19,14 @@ module;
 #include "../Bind/Framework.h"
 #include "Layers/layerInterface.h"
 
-export module ProjectModule;
-
-// import Platform;
-
-// import LayersCore;
-// import JsonCore;
-// import MetadataCoreIO;
-// import CSBind;
-// import ProjectSettings;
-//import BackBind;
-
-
 template<class T>
-constexpr T mmmin(T a, T b)
+inline constexpr T mmmin(T a, T b)
 {
 	return a > b ? b : a;
 }
 
 template<class T>
-constexpr T mmmax(const T a, const T b)
+inline constexpr T mmmax(const T a, const T b)
 {
 	return a > b ? a : b;
 }
@@ -46,7 +34,7 @@ constexpr T mmmax(const T a, const T b)
 
 enum MarkersShowState { found = 0, ather, barcodeNotPassed, circleNotPassed, boundyNotPassed, holmNotPassed, allExceptRed, all, none };
 
-export enum class BackPath
+enum class BackPath
 {
 	img,
 	project,
@@ -60,14 +48,14 @@ export enum class BackPath
 };
 
 
-export enum class GuiState
+enum class GuiState
 {
 	Empty = 0,
 	Loaded
 };
 
 
-export class Project
+class Project
 {
 	ProjectSettings& settings;
 	DisplaySystem ds;
@@ -405,5 +393,3 @@ public:
 		return cs.toGlobal(iglob.x * diplsayToRealFactor, iglob.y * diplsayToRealFactor); // To real
 	}
 };
-
-Project* Project::proj = nullptr;

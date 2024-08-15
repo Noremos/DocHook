@@ -2,10 +2,11 @@ module;
 #include "../DrawCommon.h"
 
 #include "../backend/Interfaces/IItem.h"
+#include "../GuiWidgets.h"
+
 export module GuiFilter;
 //import BackBind;
 // import IItemModule;
-import GuiWidgets;
 
 export struct GuiFilter
 {

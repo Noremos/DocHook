@@ -1,4 +1,5 @@
-module;
+#pragma once
+
 #include "../DrawCommon.h"
 #include <memory>
 #include <future>
@@ -6,30 +7,23 @@ module;
 #include "../../backend/Layers/layerInterface.h"
 #include "../../backend/Layers/Rasterlayers.h"
 #include "../../backend/Layers/RasterLineLayer.h"
-
-export module GuiRasterTools;
+#include "../../backend/project.h"
+#include "../Layers/GuiDataLayer.h"
+#include "../Layers/IGuiLayer.h"
+#include "../GuiWidgets.h"
 
 //import BackBind;
-import GuiWidgets;
 // import RasterLayers;
 import GuiLayers;
 import GuiOverlap;
 import DynamicSettings;
 
-import IGuiLayer;
-import GuiDataLayer;
 // import LayersCore;
 import GuiFilter;
-import DrawUtils;
-import ProjectModule;
-
-int maxThreadCount, minThreadCount;
 
 
 
-
-
-export template<class IM, class T>
+template<class IM, class T>
 class ITiledRasterGuiLayer : public GuiLayerData<T>
 {
 public:
@@ -287,7 +281,7 @@ public:
 	}
 };
 
-export template<class T>
+template<class T>
 class TiledRasterGuiLayer : public ITiledRasterGuiLayer<GuiDrawImage, T>
 {
 	using Base = ITiledRasterGuiLayer<GuiDrawImage, T>;
@@ -314,7 +308,7 @@ public:
 };
 
 
-export template<class T>
+template<class T>
 class RasterToolsLayer : public TiledRasterGuiLayer<T>
 {
 	GuiFilter filtere;

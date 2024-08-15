@@ -2,21 +2,21 @@ module;
 #include <algorithm>
 #include "DrawCommon.h"
 #include "../backend/Interfaces/IBlock.h"
+#include "../backend/project.h"
 
 #include "../backend/MatrImg.h"
 #include "../Bind/Framework.h"
+#include "Layers/IGuiLayer.h"
+#include "GuiWidgets.h"
+
 export module GuiBlock;
 
 //import BackBind;
 // import MatrModule;
 
 // import Platform;
-import GuiWidgets;
-import DrawUtils;
 // import IBlock;
 
-import ProjectModule;
-import IGuiLayer;
 import DynamicSettings;
 
 export class GuiBlock

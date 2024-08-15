@@ -5,15 +5,15 @@ module;
 
 #include "../../backend/CSBind.h"
 #include "../Bind/Framework.h"
+#include "GuiDataLayer.h"
+#include "IGuiLayer.h"
+#include "../GuiWidgets.h"
+
 export module GuiVectorLayers;
 //import BackBind;
 import VectorLayers;
-import GuiWidgets;
 import GuiLayers;
-import DrawUtils;
 
-import IGuiLayer;
-import GuiDataLayer;
 // import Platform;
 // import CSBind;
 

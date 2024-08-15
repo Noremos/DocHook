@@ -1,5 +1,4 @@
-module;
-
+#pragma once
 #include "../DrawCommon.h"
 #include <numeric>
 #include <algorithm>
@@ -8,25 +7,21 @@ module;
 #include "../../backend/CSBind.h"
 #include "../../backend/Layers/layerInterface.h"
 #include "../../backend/Layers/Rasterlayers.h"
-export module IGuiLayer;
+#include "../../backend/project.h"
+#include "../DrawUtils.h"
 
 // import LayersCore;
 // import RasterLayers;
-import ProjectModule;
 // import BarcodeModule
 // import CSBind;
 //import BackBind;
 //import LuaStates;
 
-import DrawUtils;
-//import FrontendBind;
+class ILayerWorker;
 
-export class ILayerWorker;
-
-Project* proj = Project::getProject();
 //GuiBackend backend;
 
-export class IGuiLayer
+class IGuiLayer
 {
 protected:
 	BackString strId;
@@ -53,6 +48,7 @@ public:
 	void lockAtThis(ImVec2 realSize)
 	{
 		auto* ccore = getCore();
+		Project* proj = Project::getProject();
 		DisplaySystem& ds = proj->getDisplay();
 
 		BackPoint BPRealSize = toBP(realSize);
@@ -87,7 +83,7 @@ public:
 };
 
 
-export class LayerFactory : public CoreLayerFactory
+class LayerFactory : public CoreLayerFactory
 {
 private:
 	static FunctionGuiHolder<IGuiLayer> guiLayersCreators;
@@ -120,11 +116,10 @@ public:
 	}
 };
 
-CoreLayerFactory::FunctionGuiHolder<IGuiLayer> LayerFactory::guiLayersCreators;
 
 // Contexr
 
-export class ILayerWorker
+class ILayerWorker
 {
 public:
 	InOutLayer iol;
@@ -228,6 +223,7 @@ public:
 
 	void loadLayers()
 	{
+		Project* proj = Project::getProject();
 		layers.clear();
 		for (auto& coreLay : proj->layers)
 		{

@@ -1,4 +1,4 @@
-module;
+#pragma once
 #include "../DrawCommon.h"
 #include <memory>
 #include <future>
@@ -8,26 +8,24 @@ module;
 #include "../../backend/Interfaces/IItem.h"
 #include "../../backend/Layers/Rasterlayers.h"
 #include "../../backend/Layers/RasterLineLayer.h"
+#include "../Templates/GuiRasterTools.h"
+#include "IGuiLayer.h"
+#include "../GuiWidgets.h"
 
-export module GuiRasterLineLayer;
 
 //import BackBind;
 // import IItemModule;
-import GuiWidgets;
 // import RasterLayers;
 import GuiOverlap;
 // import RasterLineLayerModule;
-import GuiRasterTools;
 //import SimpleLine;
 
 import GuiLayers;
-import DrawUtils;
 //GuiBackend backend;
 
-import IGuiLayer;
 import GuiFilter;
 
-export class RasterLineGuiLayer : public ITiledRasterGuiLayer<GuiDrawCloudPointClick, RasterLineLayer>
+class RasterLineGuiLayer : public ITiledRasterGuiLayer<GuiDrawCloudPointClick, RasterLineLayer>
 {
 	using Base = ITiledRasterGuiLayer<GuiDrawCloudPointClick, RasterLineLayer>;
 public:

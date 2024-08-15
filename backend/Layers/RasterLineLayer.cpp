@@ -130,18 +130,7 @@ public:
 RetLayers RasterLineLayer::createCacheBarcode(IRasterLayer* inLayer, const BarcodeProperies& propertices, IItemFilter* filter)
 {
 	// Setup
-	bc::barstruct constr;
-	constr.createBinaryMasks = true;
-	constr.createGraph = true;
-	constr.attachMode = propertices.attachMode;
-	//constr.maxRadius = 255;
-	// constr.attachMode = bc::AttachMode::closer;
-	constr.returnType = bc::ReturnType::barcode2d;
-	//constr.addStructure(propertices.barstruct);
-	//	constr.setStep(stepSB);
-	// -------
-
-	constr = propertices.get();
+	bc::barstruct constr = propertices.get();
 
 	// Input Layer prepatons
 	int tileSize = inLayer->prov.tileSize;
@@ -179,69 +168,30 @@ RetLayers RasterLineLayer::createCacheBarcode(IRasterLayer* inLayer, const Barco
 	// ------
 
 
-	// Setup tileIterators
-	TileImgIterator tileIter(tileSize, tileOffset, curSize.wid, curSize.hei);
-
-	// Threads
-	const bool curRunAsync = getSettings().runAsync;
-	int curthreadsCount = curRunAsync ? getSettings().threadsCount : 1;
-	int counter = 0;
-	if (curRunAsync)
-	{
-		printf("Run in async mode with %d threads\n", curthreadsCount);
-	}
-	else
-	{
-		printf("Run in sync mode\n");
-	}
-
-	const bool allowSyncInAsync = true;
-	WorkerPool wpool;
-	std::mutex cacherMutex;
-	for (unsigned short i = 0; i < curthreadsCount; i++)
-	{
-		CreateBarThreadWorker* worker = new CreateBarThreadWorker(cacherMutex, constr, inLayer, cacher, counter);
-		worker->setCallback(layer, filter);
-		wpool.add(worker, allowSyncInAsync);
-	}
-
-	// Run
-	buint iwid, ihei;
-	bc::point offset;
+	BackImage img = inLayer->getImage(100000);
 
 	const auto start = std::chrono::steady_clock::now();
-	if (curRunAsync)
+
+	int inde = 0;
+	auto cacheClass = [layer, filter, &inde](IClassItem* item)
 	{
-		// How much tiles the offset covers; We skip the conflict tiles;
-		// const int maxSteps = 1 + static_cast<int>((tileSize + tileOffset) / tileSize);
-		tileIter.reset();
-		while (tileIter.iter(offset, iwid, ihei))
+		TileProvider tileProv(1.0, 0, 0);
+		if (layer->passLine(item, filter))
 		{
-			TileProvider tileProv = prov.tileByOffset(offset.x, offset.y);
-			auto rect = inLayer->getRect(offset.x, offset.y, iwid, ihei);
-
-			bool isAsyncl;
-			CreateBarThreadWorker* worker = static_cast<CreateBarThreadWorker*>(wpool.getFreeWorker(isAsyncl));
-			worker->updateTask(rect, tileProv);
-
-			if (isAsyncl)
-				worker->runTask();
-			else
-				worker->runSync();
+			layer->addLine(inde++, item, tileProv);
 		}
-		wpool.waitForAll(true);
+	};
+
+	{
+		CachedBaritemHolder creator;
+		constr.proctype = bc::ProcType::f0t255;
+		creator.create(&img, constr, cacheClass);
 	}
-	else
-	{
-		while (tileIter.iter(offset, iwid, ihei))
-		{
-			TileProvider tileProv = prov.tileByOffset(offset.x, offset.y);
-			auto rect = inLayer->getRect(offset.x, offset.y, iwid, ihei);
 
-			CreateBarThreadWorker* worker = static_cast<CreateBarThreadWorker*>(wpool.getSyncWorker());
-			worker->updateTask(rect, tileProv);
-			worker->runSync();
-		}
+	{
+		CachedBaritemHolder creator;
+		constr.proctype = bc::ProcType::f255t0;
+		creator.create(&img, constr, cacheClass);
 	}
 
 	const auto end = std::chrono::steady_clock::now();

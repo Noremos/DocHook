@@ -1,4 +1,5 @@
-module;
+#pragma once
+
 #include "../DrawCommon.h"
 
 #include <numeric>
@@ -7,32 +8,27 @@ module;
 #include "Usings.h"
 
 #include "../../backend/CSBind.h"
+#include "../backend/project.h"
 #include "../Bind/Framework.h"
 #include "../../backend/Layers/layerInterface.h"
 #include "../../backend/Layers/Rasterlayers.h"
-export module GuiDataLayer;
+#include "IGuiLayer.h"
+#include "../GuiWidgets.h"
 
 // import LayersCore;
 // import RasterLayers;
-import ProjectModule;
 // import BarcodeModule;
-import GuiWidgets;
 import GuiOverlap;
 import VectorLayers;
 // import CSBind;
 // import Platform;
-import DrawUtils;
 //import BackBind;
 //import LuaStates;
 
-import IGuiLayer;
-//import FrontendBind;
-
-Project* proj = Project::getProject();
 //GuiBackend backend;
 
 
-export template<class T>
+template<class T>
 class GuiLayerData : public IGuiLayer
 {
 protected:
@@ -43,6 +39,8 @@ public:
 
 	GuiLayerData(T* fromCore = nullptr)
 	{
+		Project* proj = Project::getProject();
+
 		if (fromCore == nullptr)
 			data = proj->addLayerData<T>();
 		else

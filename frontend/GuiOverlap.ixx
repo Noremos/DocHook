@@ -5,12 +5,12 @@ module;
 
 #include "../backend/MatrImg.h"
 #include "../backend/Layers/layerInterface.h"
+#include "GuiWidgets.h"
 export module GuiOverlap;
 
 //import BackBind;
 // import MatrModule;
 // import LayersCore;
-import GuiWidgets;
 // import BarScalarModule;
 
 struct vec3

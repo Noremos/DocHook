@@ -1,4 +1,4 @@
-module;
+#pragma once
 #include <algorithm>
 #include <memory>
 #include <cmath>
@@ -15,7 +15,6 @@ module;
 #include "../backend/CSBind.h"
 #include "../backend/MatrImg.h"
 #include "../Bind/Framework.h"
-export module DrawUtils;
 
 // import Platform;
 // import MatrModule;
@@ -23,7 +22,7 @@ export module DrawUtils;
 //import BackBind;
 // import BarScalarModule;
 
-export void ResizeImage(int& width, int& height, int max_width, int max_height)
+inline void ResizeImage(int& width, int& height, int max_width, int max_height)
 {
 	// Calculate the aspect ratio of the image
 	float aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
@@ -37,7 +36,7 @@ export void ResizeImage(int& width, int& height, int max_width, int max_height)
 	height = std::min(max_height, max_aspect_height);
 }
 
-export void ResizeImage(ImVec2& size, const ImVec2& maxSize)
+inline void ResizeImage(ImVec2& size, const ImVec2& maxSize)
 {
 	// Calculate the aspect ratio of the image
 	float aspect_ratio = size.x / size.y;
@@ -47,7 +46,7 @@ export void ResizeImage(ImVec2& size, const ImVec2& maxSize)
 	size.y = std::min(maxSize.y, max_aspect_height);
 }
 
-export void ResizeImage(BackPoint& size, const BackPoint& maxSize)
+inline void ResizeImage(BackPoint& size, const BackPoint& maxSize)
 {
 	// Calculate the aspect ratio of the image
 	double aspect_ratio = size.x / size.y;
@@ -58,11 +57,11 @@ export void ResizeImage(BackPoint& size, const BackPoint& maxSize)
 }
 
 
-export using ApplicationVec2 = ImVec2;
-export using WindowVec2 = ImVec2; // The top-left is a begin window
-export using ItemVec2 = ImVec2; // The top-left is an Item (image) coords
+using ApplicationVec2 = ImVec2;
+using WindowVec2 = ImVec2; // The top-left is a begin window
+using ItemVec2 = ImVec2; // The top-left is an Item (image) coords
 
-export struct TextureId
+struct TextureId
 {
 	GLuint textureId;
 	~TextureId()
@@ -71,19 +70,19 @@ export struct TextureId
 	}
 };
 
-export inline ImVec2 toIV(const BackPoint& p)
+inline ImVec2 toIV(const BackPoint& p)
 {
 	return ImVec2(p.x, p.y);
 }
 
-export BackPoint toBP(const ImVec2& p)
+inline BackPoint toBP(const ImVec2& p)
 {
 	return BackPoint(p.x, p.y);
 }
 
 
 
-export class GuiImage
+class GuiImage
 {
 public:
 	GuiImage() : textureId(nullptr)
@@ -292,12 +291,12 @@ private:
 
 };
 
-export class GuiItem
+class GuiItem
 {
 
 };
 
-export class GuiDisplaySystem
+class GuiDisplaySystem
 {
 public:
 	DisplaySystem& core;

@@ -22,27 +22,27 @@
 #include "../backend/Layers/layerInterface.h"
 #include "../backend/Layers/Rasterlayers.h"
 #include "../backend/Layers/RasterLineLayer.h"
+#include "../backend/ScreenCapture.h"
+#include "Layers/GuiRasterLayers.h"
+#include "Layers/IGuiLayer.h"
+#include "Layers/GuiRasterLineLayer.h"
+#include "GuiWidgets.h"
+#include "../backend/project.h"
 
-import FrontendBind;
 // import Platform;
 import GuiLayers;
 // import BarcodeModule;
 import GuiOverlap;
-import GuiWidgets;
+
 import VectorLayers;
 import GuiVectorLayers;
-import ProjectModule;
-import GuiRasterLayers;
-import GuiRasterLineLayer;
+
 // import ProjectSettings;
 //import BackBind;
 // import RasterLineLayerModule;
 
-import DrawUtils;
 // import RasterLayers;
 // import LayersCore;
-import IGuiLayer;
-import GuiLayers;
 import GuiBlock;
 //import Lua;
 
@@ -50,14 +50,154 @@ import GuiBlock;
 
 /// Widget for raster layers
 
+
+// Todo.
+// 2 режима
+class GuiBackend
+{
+	static int opens;
+
+public:
+	Project* proj = nullptr;
+	GuiBackend()
+	{
+		proj = Project::getProject();
+		opens++;
+	}
+	~GuiBackend()
+	{
+		opens--;
+		if (opens == 0)
+			Project::dropProject();
+	}
+
+	DisplaySystem& getDS()
+	{
+		return proj->getDisplay();
+	}
+
+	bool isLoaded() const
+	{
+		return proj->state >= GuiState::Loaded;
+	}
+
+	MetadataProvider& getMeta()
+	{
+		return proj->getMeta();
+	}
+
+
+	inline RetLayers createCacheBarcode(InOutLayer& iol, const BarcodeProperies& propertices, IItemFilter* filter = nullptr)
+	{
+		Project* proj = Project::proj;
+
+		IRasterLayer* inLayer = proj->getInRaster(iol);
+
+		RasterLineLayer* layer = proj->addOrUpdateOut<RasterLineLayer>(iol, inLayer->cs.getProjId());
+		auto ret = layer->createCacheBarcode(inLayer, propertices, filter);
+
+		proj->saveProject();
+
+		return ret;
+	}
+
+
+
+
+	inline RasterFromDiskLayer* loadImage(const BackPathStr& path, int step)
+	{
+		Project* proj = Project::proj;
+
+		RasterFromDiskLayer* layer = proj->addLayerData<RasterFromDiskLayer>();
+		layer->open(path, proj->getMeta());
+
+		proj->saveProject();
+
+		return layer;
+	}
+
+
+	// Gui
+	void createProject(const BackPathStr& path, const BackString& name, const BackPathStr& imgPath)
+	{
+		BackPathStr fullPath = path / name;
+		proj->setProjectPath(fullPath);
+		dropDirIfExists(proj->getPath(BackPath::metadata));
+		loadImage(imgPath, 1);
+		proj->state = GuiState::Loaded;
+	}
+
+	//RetLayers processRaster(InOutLayer& layer, IItemFilter* filter)
+	//{
+	//	if (!created)
+	//		return RetLayers();
+
+	//	return proj->processCachedBarcode(layer, filter);
+	//}
+
+	VectorLayer* addVectorLayer()
+	{
+		return proj->addLayerData<VectorLayer>();
+	}
+
+	void removeLayer(buint id)
+	{
+		proj->layers.remove(id);
+	}
+
+	RasterFromDiskLayer* loadImageOrProject(const BackPathStr& path)
+	{
+		RasterFromDiskLayer* layer = nullptr;
+		GuiState newState = proj->state;
+		bool setProc = false;
+		if (path.extension() == ".qwr")
+		{
+			if (!proj->loadProject(path))
+				return nullptr;
+			//		return;
+			setProc = true;
+			newState = GuiState::Loaded;
+		}
+		else
+		{
+			if (state == GuiState::Empty)
+			{
+				proj->setProjectPath(path, true);
+			}
+
+			newState = GuiState::Loaded;
+			layer = loadImage(path, 1);
+		}
+
+
+		proj->state = newState;
+		return layer;
+	}
+
+
+	void save()
+	{
+		proj->saveProject();
+	}
+
+
+private:
+
+
+private:
+
+private:
+	GuiState state = GuiState::Empty;
+};
+
+int GuiBackend::opens = 0;
+
 GuiBackend backend;
-int maxThreadCount, minThreadCount;
-
-
-
 
 namespace MyApp
 {
+	inline int maxThreadCount, minThreadCount;
+
 	void setImGuiStyle(float highDPIscaleFactor)
 	{
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -222,122 +362,162 @@ namespace MyApp
 		}
 	}
 
+	char buffer[1000];
+	struct ImgData
+	{
+		BackImage src;
+		GuiDrawImage img;
+		std::string name = "";
+		uint32_t winId = 0;
+	};
+
+	void createBarWindow(InOutLayer* io)
+	{
+		BarcodeProperies barset;
+		RetLayers ret = backend.createCacheBarcode(*io, barset, nullptr);
+		layersVals.setLayers(ret, "barcode");
+	}
+
+	std::vector<ImgData> images;
+	void drawPreview()
+	{
+		// Draw image
+		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+		const float windowWidth = viewport->Size.x * 0.8;
+		const float windowHeight = viewport->Size.y * 0.8;
+
+
+		ImGuiIO& io = ImGui::GetIO();
+		ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f,0.5f));
+
+		if (ImGui::BeginPopupModal("Превью", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			const float topMargin = 50.0f;
+			const float margin = 20.0f;
+			const float itemWidth = 100.0f;
+			const float itemHeight = 100.0f;
+			const float itemWidthWithMargin = itemWidth + margin;
+			const float itemHeightWithMargin = itemHeight + margin + 50; // 50 for text
+
+			// const int itemCount = int(std::ceil(std::sqrt(images.size())));
+			const int columns = int(std::ceil((windowWidth - margin) / itemWidthWithMargin));
+			const int rows = int(std::ceil(float(images.size()) / columns));
+
+			// ImGui::SetWindowSize(ImVec2(columns * (itemWidth + 10) + 10, rows * (itemHeight + 10) + 10));
+
+			for (int i = 0; i < rows; i++)
+			{
+				float x = margin;
+				float y = topMargin + i * (itemWidthWithMargin);
+				// ImGui::BeginChild(("##WrapRow" + std::to_string(i)).c_str(), ImVec2(0, itemHeight * 1.2f), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+				for (int j = 0; j < columns && (i + j * rows < images.size()); j++)
+				{
+					ImgData& data = images[i + j * rows];
+					ImGui::PushID(data.winId);
+
+					ImGui::SetCursorPos(ImVec2(x, y));
+					ImVec2 size(data.img.width, data.img.height);
+					ResizeImage(size, ImVec2(itemWidth, itemHeight));
+					if (ImGui::ImageButton(data.img.getTexturePtr(), size))
+					{
+						// selectedImgData = &data;
+						// ImGui::OpenPopup("ImgPreview");
+
+						RasterLineLayer* layer = backend.proj->addLayerData<RasterLineLayer>();
+						layer->mat = data.src;
+
+						RasterLineGuiLayer* guiLayer = layersVals.addLayer<RasterLineGuiLayer>("Loaded", layer);
+						guiLayer->lockAtThis(layersVals.lastRealSize);
+
+						auto activeLayer = layersVals.getIoLayer();
+
+
+						ImGui::CloseCurrentPopup();
+
+					}
+
+					ImGui::SetCursorPos(ImVec2(x, y + size.y + 20));
+					// data.img.drawImage("##ImgPreview", ImVec2(itemWidth, itemHeight), ImVec2(0, 1));
+					ImGui::Text("%s", data.name.data());
+					ImGui::PopID();
+
+					x += size.x + margin;
+
+
+					// ImGui::SameLine();
+				}
+				// ImGui::EndChild();
+			}
+
+			// for (ImgData& data : images)
+			// {
+			// 	data.img.drawImage("##ImgPreview", {0,0}, {0, 0});
+			// 	ImGui::Text(data.name.data());
+			// }
+
+			ImGui::Separator();
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SetItemDefaultFocus();
+			ImGui::SameLine();
+			if (ImGui::Button(BU8("Cancel"), ImVec2(120, 0)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+
+
+	}
+
 	void drawTopBar()
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar;
 		// float heighto = ImGui::GetFrameHeight();
 		if (ImGui::BeginViewportSideBar("##TopMenu", NULL, ImGuiDir_Up, 50, window_flags))
 		{
-			// GBl
-			ImGui::BeginDisabled(commonValus.onAir);
+			// static std::queue<RasterFromDiskLayer*> layers;
 
-			// if (ImGui::Button("Create prj"))
-			// {
-			// 	ImGui::OpenPopup("CreateProject");
-			// }
+			// static int val = 0;
+			// bool upd = ImGui::SliderInt("Off", &val, -100, 100);
 
-			if (ImGui::BeginPopupModal("CreateProject", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			if (ImGui::Button(BU8("Скриншот")))
 			{
-				static char str0[128] = "Hello, world!";
-				ImGui::InputText("Name", str0, IM_ARRAYSIZE(str0));
+				auto imgs = getWindowsPreview();
+				images.clear();
 
-				static char path[1024] = "";
-
-				ImGui::InputText("Path", path, IM_ARRAYSIZE(str0));
-
-				//if (ImGui::Button("Select proj"))
-				//{
-				//	BackPathStr pathi = openDir();
-				//	memcpy(path, pathi.string().c_str(), pathi.string().length());
-				//}
-
-				if (ImGui::Button("Select img"))
+				for (ImageData& data : imgs)
 				{
-					BackPathStr pathi = openImage();
-					memcpy(path, pathi.string().c_str(), pathi.string().length());
+					ImgData& guiimg = images.emplace_back();
+					guiimg.src = BackImage(data.width, data.height, data.channels, (uchar*)data.data.get());
+					guiimg.img.setImage(guiimg.src, false);
+					guiimg.name = data.name;
+					guiimg.winId = data.winId;
 				}
-
-				if (ImGui::Button("OK", ImVec2(120, 0)))
-				{
-					[[maybe_unused]]
-					auto* core = backend.loadImageOrProject(path);
-					if (backend.isLoaded())
-					{
-
-						//centerVals.tilemap.init(tileSize = backend.getTileSize();
-						//classerVals.loadClassImages();
-					}
-
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::SameLine();
-				if (ImGui::Button(BU8("Отмена"), ImVec2(120, 0)))
-				{
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
+				ImGui::OpenPopup("Превью");
 			}
 
-			static std::queue<RasterFromDiskLayer*> layers;
+			drawPreview();
 
 			ImGui::SameLine();
-			if (ImGui::Button(BU8("Open...")))
+			ImGui::SetNextItemWidth(100);
+			ImGui::InputText("##name", buffer, 1000);
+			ImGui::SameLine();
+			if (ImGui::Button(BU8("Скриншот по имени")))
 			{
-				std::vector<BackPathStr> paths = openImagesOrProject();
-				for (auto& path : paths)
+				ImageData img = CaptureWindowByName(buffer);
+				if (img.data)
 				{
-					RasterFromDiskLayer* layer = backend.loadImageOrProject(path);
-					if (backend.isLoaded())
-					{
-						if (layer)
-						{
-							if (layer->hasCS())
-							{
-								auto* guiLayer = layersVals.addLayer<RasterFromDiskGuiLayer>("Loaded", layer);
-								guiLayer->lockAtThis(layersVals.lastRealSize);
-							}
-							else
-							{
-								layer->cs.init(DEFAULT_PROJECTION);
-								ImGui::OpenPopup(BU8("Coord System"));
-								layers.push(layer);
-							}
-						}
-						else
-						{
-							layersVals.loadLayers();
-						}
-						//layer->data = backend.getMain();
-						// centerVals.heimap.init(layer->getData()->mat);
-						// centerVals.tilemap.init(&layer->main, backend.getTileSize());
-						//classerVals.init();
-					}
+					RasterLineLayer* layer = backend.proj->addLayerData<RasterLineLayer>();
+					layer->mat = BackImage(img.width, img.height, img.channels, (uchar*)img.data.get());
+
+					RasterLineGuiLayer* guiLayer = layersVals.addLayer<RasterLineGuiLayer>("Loaded", layer);
+					guiLayer->lockAtThis(layersVals.lastRealSize);
 				}
-			}
-
-			// Always center this window when appearing
-			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-			ImGui::SameLine();
-
-
-			ImGui::SameLine();
-			drawProjectSettings();
-
-
-			// ---------------------------------
-			ImGui::SameLine();
-			//if (ImGui::Button("Восстановить"))
-			//{
-			//}
-
-			ImGui::SameLine();
-			if (ImGui::Button(BU8("Save")))
-			{
-				backend.save();
 			}
 
 			ImGui::End();
@@ -434,8 +614,7 @@ namespace MyApp
 	// Layout
 	void drawLayout()
 	{
-
-		// drawTopBar();
+		drawTopBar();
 		drawWorkout();
 		// drawBottomBar();
 
@@ -523,6 +702,7 @@ namespace MyApp
 		backend.getDS().sysProj.init(DEFAULT_PROJECTION);
 
 		LayerFactory::RegisterFactory<RasterGuiLayer, RasterLayer>(RASTER_LAYER_FID);
+		LayerFactory::RegisterFactory<RasterLineGuiLayer, RasterLineLayer>(RASTER_LINE_LAYER_FID);
 		LayerFactory::RegisterFactory<RasterFromDiskGuiLayer, RasterFromDiskLayer>(RASTER_DISK_LAYER_FID);
 		LayerFactory::RegisterFactory<VectorGuiLayer, VectorLayer>(VECTOR_LAYER_FID);
 		//classerVals.ioLayer = layersVals.getIoLayer();
@@ -536,17 +716,6 @@ namespace MyApp
 
 	// create a function that takes screenshot of a selected window
 
-	void takeScreenshot(const std::string& path)
-	{
-		//  ImageData imgData = CaptureWindowHoveredByCursor();
-		// // Use imgData here
-
-		// // Remember to free the image data if necessary
-		// if (imgData.data) {
-		// 	delete[] imgData.data;
-		// }
-
-	}
 	// Main
 	void RenderUI()
 	{

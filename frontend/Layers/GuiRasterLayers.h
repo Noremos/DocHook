@@ -1,4 +1,4 @@
-module;
+#pragma once
 #include "../DrawCommon.h"
 #include <memory>
 #include <future>
@@ -8,23 +8,21 @@ module;
 #include "../Bind/Framework.h"
 #include "../../backend/Layers/layerInterface.h"
 #include "../../backend/Layers/Rasterlayers.h"
+#include "../Templates/GuiRasterTools.h"
+#include "IGuiLayer.h"
+#include "../GuiWidgets.h"
 
-export module GuiRasterLayers;
 //import BackBind;
 // import IItemModule;
-import GuiWidgets;
 // import RasterLayers;
 import GuiLayers;
 import GuiOverlap;
-import GuiRasterTools;
-// import Platform;
-import DrawUtils;
+// import Platform
 // import LayersCore;
 
-import IGuiLayer;
 
 
-export class RasterGuiLayer : public RasterToolsLayer<RasterLayer>
+class RasterGuiLayer : public RasterToolsLayer<RasterLayer>
 {
 public:
 
@@ -56,7 +54,7 @@ public:
 };
 
 
-export class RasterFromDiskGuiLayer : public RasterToolsLayer<RasterFromDiskLayer>
+class RasterFromDiskGuiLayer : public RasterToolsLayer<RasterFromDiskLayer>
 {
 public:
 	HeimapOverlap heimap;

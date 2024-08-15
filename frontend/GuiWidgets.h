@@ -1,5 +1,4 @@
-module;
-
+#pragma once
 #include "DrawCommon.h"
 
 #include <algorithm>
@@ -8,14 +7,12 @@ module;
 
 
 #include "../backend/CSBind.h"
-export module GuiWidgets;
+#include "../backend/project.h"
+#include "DrawUtils.h"
 
 //import BackBind;
 // import CSBind;
-import ProjectModule;
-import DrawUtils;
 
-Project* proj = Project::getProject();
 
 // struct CDDisplayPS
 // {
@@ -23,8 +20,8 @@ Project* proj = Project::getProject();
 // 	ImVec2 csSize;
 // };
 
-// export using LocalDisplayPS = CDDisplayPS;
-// export using GlobalDisplayPS = CDDisplayPS;
+// using LocalDisplayPS = CDDisplayPS;
+// using GlobalDisplayPS = CDDisplayPS;
 
 
 /*
@@ -42,7 +39,7 @@ Project* proj = Project::getProject();
 */
 
 
-export template<class T>
+template<class T>
 struct SelectableKeyValues
 {
 	int currentIndex = 0;
@@ -170,13 +167,13 @@ private:
 };
 
 
-export class GuiDrawInfo
+class GuiDrawInfo
 {
 	ImVec2 csPos;
 	ImVec2 size;
 };
 
-export class GuiResizableContainer
+class GuiResizableContainer
 {
 	ImVec2 zoom = ImVec2(1, 1);
 public:
@@ -277,7 +274,7 @@ public:
 };
 
 // Coord system displayer
-export class GuiCSDisplayContainer
+class GuiCSDisplayContainer
 {
 public:
 
@@ -318,6 +315,8 @@ public:
 		const bool hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
 		if (hovered)
 		{
+			Project* proj = Project::getProject();
+
 			auto* win = ImGui::GetCurrentWindow();
 			auto& pds = proj->getDisplay();
 			// auto wpos = pds.csPos;
@@ -373,7 +372,7 @@ public:
 };
 
 
-export class GuiDrawImage : public GuiImage
+class GuiDrawImage : public GuiImage
 {
 public:
 	WindowVec2 localDisplayPos;
@@ -518,7 +517,7 @@ private:
 };
 
 
-export class GuiTilePreview
+class GuiTilePreview
 {
 	int getAddnl(int main, int minor)
 	{
@@ -595,7 +594,7 @@ public:
 };
 
 
-export class GuiDrawCloudPointClick : public GuiDrawImage
+class GuiDrawCloudPointClick : public GuiDrawImage
 {
 	//bool dropPoints = false;
 public:
@@ -713,7 +712,7 @@ public:
 	}
 };
 
-export class StepIntSlider
+class StepIntSlider
 {
 public:
 
@@ -729,7 +728,7 @@ public:
 	}
 };
 
-export class ProjectionSettings
+class ProjectionSettings
 {
 	static std::vector<BackString> projections;
 	int selectedProjId = 0;
@@ -798,5 +797,3 @@ public:
 		curcs.copyTo(cs);
 	}
 };
-
-std::vector<BackString> ProjectionSettings::projections;
