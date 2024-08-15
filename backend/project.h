@@ -93,7 +93,6 @@ class Project
 		for (int i = 0; i < size; i++)
 		{
 			JsonObjectIOState* obj = arrst->objectBegin(i);
-			MetadataProvider sub = *settings.metaprov;// Do not reffer!
 
 			int factoryId;
 			ILayer* lay;
@@ -114,12 +113,12 @@ class Project
 				iter++;
 			}
 
-			lay->saveLoadState(obj, sub);
+			lay->saveLoadState(obj);
 			arrst->objectEnd();
 		}
 		state->arrayEnd();
 
-		ds.saveLoadState(state, getMeta());
+		ds.saveLoadState(state);
 	}
 public:
 	//	Q_PROPERTY(SeachingSettings* searchSetts READ getSerchSetts)
@@ -329,10 +328,6 @@ public:
 		}
 	}
 
-	MetadataProvider& getMeta()
-	{
-		return *settings.metaprov.get();
-	}
 
 	BackPathStr getMetaPath(const BackString& item) const
 	{

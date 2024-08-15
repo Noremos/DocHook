@@ -378,7 +378,7 @@ MEXPORT struct CSBinding : public IJsonIO
 	}
 
 	// Унаследовано через IJsonIO
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) override
+	virtual void saveLoadState(JsonObjectIOState* state) override
 	{
 		auto displayObj = state->objectBegin("ClassBinding");
 
@@ -469,7 +469,7 @@ MEXPORT struct DisplaySystem : public IJsonIO
 	//}
 
 	// Унаследовано через IJsonIO
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) override
+	virtual void saveLoadState(JsonObjectIOState* state) override
 	{
 		auto displayObj = state->objectBegin("display_system");
 		ioPoint(displayObj, "csPos", csPos);

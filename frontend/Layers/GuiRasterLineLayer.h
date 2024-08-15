@@ -73,20 +73,6 @@ public:
 		if (ImGui::BeginPopupModal("UpdateImage", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			filtere.draw();
-
-			if (ImGui::Button("Update"))
-			{
-				selectedLine = nullptr;
-
-				ImGui::CloseCurrentPopup();
-				//auto rets = backend.processRaster(context.iol, filtere.getFilter());
-				Base::data->collectionToPredict = nullptr;
-				auto rets = Base::data->processCachedBarcode(filtere.getFilter());
-				this->toGuiData();
-				context.setLayers(rets, "barcode");
-				//commonValus.onAir = true;
-				//commonValus.future = std::async(&GuiBackend::processRaster, std::ref(backend),
-			}
 			ImGui::SameLine();
 
 			if (ImGui::Button("Close"))

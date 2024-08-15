@@ -81,12 +81,6 @@ public:
 		return proj->state >= GuiState::Loaded;
 	}
 
-	MetadataProvider& getMeta()
-	{
-		return proj->getMeta();
-	}
-
-
 	inline RetLayers createCacheBarcode(InOutLayer& iol, const BarcodeProperies& propertices, IItemFilter* filter = nullptr)
 	{
 		Project* proj = Project::proj;
@@ -109,7 +103,7 @@ public:
 		Project* proj = Project::proj;
 
 		RasterFromDiskLayer* layer = proj->addLayerData<RasterFromDiskLayer>();
-		layer->open(path, proj->getMeta());
+		layer->open(path);
 
 		proj->saveProject();
 
@@ -126,14 +120,6 @@ public:
 		loadImage(imgPath, 1);
 		proj->state = GuiState::Loaded;
 	}
-
-	//RetLayers processRaster(InOutLayer& layer, IItemFilter* filter)
-	//{
-	//	if (!created)
-	//		return RetLayers();
-
-	//	return proj->processCachedBarcode(layer, filter);
-	//}
 
 	VectorLayer* addVectorLayer()
 	{
@@ -378,6 +364,9 @@ namespace MyApp
 		layersVals.setLayers(ret, "barcode");
 	}
 
+	constexpr float itemWidth = 100.0f;
+	constexpr float itemHeight = 100.0f;
+
 	std::vector<ImgData> images;
 	void drawPreview()
 	{
@@ -394,8 +383,7 @@ namespace MyApp
 		{
 			const float topMargin = 50.0f;
 			const float margin = 20.0f;
-			const float itemWidth = 100.0f;
-			const float itemHeight = 100.0f;
+
 			const float itemWidthWithMargin = itemWidth + margin;
 			const float itemHeightWithMargin = itemHeight + margin + 50; // 50 for text
 
@@ -417,7 +405,6 @@ namespace MyApp
 
 					ImGui::SetCursorPos(ImVec2(x, y));
 					ImVec2 size(data.img.width, data.img.height);
-					ResizeImage(size, ImVec2(itemWidth, itemHeight));
 					if (ImGui::ImageButton(data.img.getTexturePtr(), size))
 					{
 						// selectedImgData = &data;
@@ -429,7 +416,7 @@ namespace MyApp
 						RasterLineGuiLayer* guiLayer = layersVals.addLayer<RasterLineGuiLayer>("Loaded", layer);
 						guiLayer->lockAtThis(layersVals.lastRealSize);
 
-						auto activeLayer = layersVals.getIoLayer();
+						createBarWindow(layersVals.getIoLayer());
 
 
 						ImGui::CloseCurrentPopup();
@@ -494,7 +481,9 @@ namespace MyApp
 				{
 					ImgData& guiimg = images.emplace_back();
 					guiimg.src = BackImage(data.width, data.height, data.channels, (uchar*)data.data.get());
-					guiimg.img.setImage(guiimg.src, false);
+					BackPoint imgsize(data.width, data.height);
+					ResizeImage(imgsize, BackPoint(itemWidth, itemHeight));
+					guiimg.img.setImage(guiimg.src, imgsize.x, imgsize.y, false);
 					guiimg.name = data.name;
 					guiimg.winId = data.winId;
 				}

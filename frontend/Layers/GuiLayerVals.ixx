@@ -137,7 +137,7 @@ public:
 				if (ImGui::Button(ICON_FA_TRASH "", ImVec2(selHei, selHei)))
 				{
 					delId = curID;
-					lay->getCore()->release(proj->getMeta());
+					lay->getCore()->release();
 					if (curRadio)
 					{
 						if (lastLayer)

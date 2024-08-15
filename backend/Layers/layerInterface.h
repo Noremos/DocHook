@@ -493,12 +493,6 @@ public:
 		return name.append("_layer");
 	}
 
-	MetadataProvider getLayerMeta(const MetadataProvider& metaFolder)
-	{
-		BackString lname = getMetaLayerName();
-		return metaFolder.getSubMeta(lname);
-	}
-
 public:
 	int id = -1;
 	BackString name;
@@ -521,7 +515,7 @@ public:
 	}
 
 
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) override
+	virtual void saveLoadState(JsonObjectIOState* state) override
 	{
 		state->scInt("coreId", id);
 		state->scStr("name", name);
@@ -529,7 +523,7 @@ public:
 		state->scBool("isSystem", isSystem);
 		state->scBool("visible", visible);
 
-		cs.saveLoadState(state, metaFolder);
+		cs.saveLoadState(state);
 
 		//state->scInt("layerCounter", layerCounter);
 
@@ -566,7 +560,7 @@ public:
 
 	virtual Type getType() const = 0;
 	virtual const LFID getFactoryId() const = 0;
-	virtual void release(const MetadataProvider&)
+	virtual void release()
 	{
 		// BackString lname = getMetaLayerName();
 		// metaFolder.update(metaFolder.getSubMeta(lname));
@@ -678,9 +672,9 @@ public:
 		return Type::Raster;
 	}
 
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder)
+	virtual void saveLoadState(JsonObjectIOState* state)
 	{
-		ILayer::saveLoadState(state, metaFolder);
+		ILayer::saveLoadState(state);
 		JsonObjectIOState* jobj = state->objectBegin("provider");
 
 		jobj->scInt("width", prov.width);

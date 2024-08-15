@@ -50,46 +50,9 @@ public:
 		counter = mpv.counter;
 	}
 
-	BackPathStr getUniquePath(int& id) const
-	{
-		id = counter++;
-		return path / intToStr(id);
-	}
-
 	int getUniqueId() const
 	{
 		return counter++;
-	}
-
-	BackPathStr getUniquePath(int& id, const BackString& ext)
-	{
-		id = counter++;
-		return path / (intToStr(id) + (ext[0] == '.' ? ext : ("." + ext)));
-	}
-
-	BackPathStr getPath(int id, const BackString& ext) const
-	{
-		return path / (intToStr(id) + (ext[0] == '.' ? ext : ("." + ext)));
-	}
-
-	BackDirStr getSubFolder(const BackString& name) const
-	{
-		return path / name;
-	}
-
-	BackDirStr getFile(const BackString& name) const
-	{
-		return path / name;
-	}
-
-	MetadataProvider getSubMeta(const BackString& folder) const
-	{
-		return MetadataProvider(path / folder, counter);
-	}
-
-	void mkdir()
-	{
-		mkDirIfNotExists(path);
 	}
 
 // 	MetadataProvider store(const BackImage& img)
@@ -124,19 +87,19 @@ MEXPORT inline void ioPoint(JsonArrayIOState* state, int id, BackPoint& p)
 MEXPORT class IJsonIO
 {
 public:
-	void read(const JsonObject& obj, const MetadataProvider& metaFolder)
+	void read(const JsonObject& obj)
 	{
 		JsonObjectIOStateReader state(obj);
-		saveLoadState(&state, metaFolder);
+		saveLoadState(&state);
 	}
 
-	void write(JsonObject& obj, const MetadataProvider& metaFolder)
+	void write(JsonObject& obj)
 	{
 		JsonObjectIOStateWriter state(obj);
-		saveLoadState(&state, metaFolder);
+		saveLoadState(&state);
 	}
 private:
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) = 0;
+	virtual void saveLoadState(JsonObjectIOState* state) = 0;
 };
 
 

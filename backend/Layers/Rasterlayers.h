@@ -259,25 +259,6 @@ public:
 	{
 		return RASTER_LAYER_FID;
 	}
-
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) override
-	{
-		IRasterLayer::saveLoadState(state, metaFolder);
-
-		LayerMetaProvider layerMeta(getLayerMeta(metaFolder));
-		layerMeta.mkdir();
-		// int imgId = metaFolder.getUniqueId();
-		const BackPathStr path = layerMeta.getSubFolder("mat.png");
-
-		if (state->isReading())
-		{
-			mat = imread(path);
-			// std::remove(path.string().c_str());
-		}
-		else
-			imwrite(path, mat);
-	}
-
 	//void release(MetadataProvider mprov)
 	//{
 	//	const BackPathStr path = mprov.getPath(imgId, ".png");
@@ -431,10 +412,10 @@ public:
 		return RASTER_DISK_LAYER_FID;
 	}
 
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) override
+	virtual void saveLoadState(JsonObjectIOState* state) override
 	{
 		// this->mprov = &metaFolder;
-		IRasterLayer::saveLoadState(state, metaFolder);
+		IRasterLayer::saveLoadState(state);
 
 		state->scPath("imgPath", imgPath);
 		state->scInt("subImgSize", subImgSize);
@@ -446,12 +427,11 @@ public:
 		if (state->isReading())
 		{
 			openReader();
-			readImagesFromCache(metaFolder);
 			setSubImage(subImageIndex);
 		}
 	}
 
-	void open(const BackPathStr& path, MetadataProvider metaPath)
+	void open(const BackPathStr& path)
 	{
 		closeReader();
 
@@ -464,11 +444,6 @@ public:
 		setSubImage(0, true);
 		if (!reader->ready)
 			return;
-	}
-
-	void cache(const MetadataProvider& metaPath)
-	{
-		writeImages(metaPath);
 	}
 
 	int getSubImage() override
@@ -615,69 +590,6 @@ public:
 		{
 			realSize.x = reader->width();
 			realSize.y = reader->height();
-		}
-	}
-
-	void writeImages(MetadataProvider metaprov)
-	{
-		if (!reader)
-			return;
-
-		MetadataProvider layerMeta(getLayerMeta(metaprov));
-		BackDirStr tiles = layerMeta.getSubFolder("tiles");
-
-		closeImages();
-		images.clear();
-
-		layerMeta.mkdir();
-
-		mkDirIfNotExists(tiles);
-
-		if (imgType == ReadType::Tiff)
-		{
-			TiffReader* trear = static_cast<TiffReader*>(reader);
-			subImgSize = trear->getSubImageSize();
-			for (int i = 0, k = 0; i < subImgSize; ++i)
-			{
-				//int factor = 1;
-				trear->setCurrentSubImage(i);
-				if (reader->width() <= 2000)
-				{
-					images.push_back(tiffToImg(reader, tiles / (intToStr(k++).append(".png")), 1.0, true));
-					break;
-				}
-			}
-
-			if (images.size() == 0)
-			{
-				int factor = reader->width() / 2000;
-				images.push_back(tiffToImg(reader, tiles / (intToStr(0).append(".png")), factor, true));
-			}
-
-			trear->setCurrentSubImage(subImageIndex);
-		}
-		else
-		{
-			images.push_back(tiffToImg(reader, tiles / (intToStr(0).append(".png")), 1, true));
-		}
-
-		subImgSize = images.size();
-	}
-
-
-	void readImagesFromCache(const MetadataProvider& metaprov)
-	{
-		if (!reader)
-			return;
-
-		LayerMetaProvider layerMeta(getLayerMeta(metaprov));
-		BackDirStr tiles = layerMeta.getSubFolder("tiles");
-
-		for (int i = 0; i < subImgSize; ++i)
-		{
-			// int factor = 1;
-			BackPathStr stp = tiles / (intToStr(i).append(".png"));
-			images.push_back(imread(stp));
 		}
 	}
 

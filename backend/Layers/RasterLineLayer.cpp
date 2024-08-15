@@ -147,25 +147,17 @@ RetLayers RasterLineLayer::createCacheBarcode(IRasterLayer* inLayer, const Barco
 	// Setup output layers
 	//
 	// Line layer
-	auto& metaprov = getSettings().getMeta();
 	RasterLineLayer* layer = this;
-	layer->init(inLayer, getSettings().getMeta());
-	layer->initCSFrom(inLayer->cs);
+	layer->init(inLayer);
+	// layer->initCSFrom(inLayer->cs);
 	layer->tileOffset = tileOffset;
 
 	LayerProvider& prov = layer->prov;
 	prov.init(curSize.wid, curSize.hei, inLayer->displayWidth(), tileSize);
 
-	if (layer->cacheId == -1)
-		layer->cacheId = metaprov.getUniqueId();
 
 	RetLayers ret;
 	ret.push_back(layer);
-
-	// Cacher
-	ItemHolderCache cacher;
-	cacher.openWrite(layer->getCacheFilePath(metaprov));
-	// ------
 
 
 	BackImage img = inLayer->getImage(100000);
@@ -201,141 +193,6 @@ RetLayers RasterLineLayer::createCacheBarcode(IRasterLayer* inLayer, const Barco
 
 	return ret;
 }
-
-RetLayers RasterLineLayer::processCachedBarcode(IItemFilter* filter)
-{
-	//if (u_displayFactor < 1.0)
-	//	throw std::exception();
-
-	RasterLineLayer* inLayer = this;
-	int tileSize = inLayer->prov.tileSize;
-	int tileOffset = inLayer->tileOffset;
-
-	if (filter)
-	{
-		const buint fullTile = tileSize + tileOffset;
-		filter->imgLen = fullTile * fullTile;
-	}
-
-	// -------
-	RetLayers ret;
-	RasterLineLayer* outLayer = inLayer;
-
-	if (collectionToPredict == nullptr)
-		outLayer->clearResponser();
-
-	BarFunc func;
-	if (outLayer->collectionToPredict == nullptr)
-	{
-		func = std::move([&outLayer, &filter](int id, TileProvider prov, CachedBarline* item)
-		{
-			if (outLayer->passLine(item, filter))
-			{
-				outLayer->addLine((int)id, item, prov);
-			}
-		});
-	}
-	else
-	{
-		func = std::move([&outLayer, &filter](int id, TileProvider prov, CachedBarline* item)
-		{
-			if (outLayer->passLine(item, filter))
-			{
-				outLayer->collectionToPredict->addItem(*item);
-			}
-		});
-	}
-
-	processCachedBarcode(filter, func);
-	return ret;
-}
-
-void RasterLineLayer::processCachedBarcode(IItemFilter* filter, const BarFunc& func)
-{
-	RasterLineLayer* inLayer = this;
-	int tileSize = inLayer->prov.tileSize;
-	int tileOffset = inLayer->tileOffset;
-
-	if (filter)
-	{
-		const buint fullTile = tileSize + tileOffset;
-		filter->imgLen = fullTile * fullTile;
-	}
-	auto& metaprov = getSettings().getMeta();
-
-	// Cacher
-	ItemHolderCache cacher;
-	cacher.openRead(inLayer->getCacheFilePath(metaprov));
-
-	// Thread
-	auto& prov = inLayer->prov;
-
-	const bool curRunAsync = getSettings().runAsync;
-	int curthreadsCount = curRunAsync ? getSettings().threadsCount : 1;
-	int counter = 0;
-	if (curRunAsync)
-	{
-		curthreadsCount = getSettings().threadsCount;
-		printf("Run in async mode with %d threads\n", curthreadsCount);
-	}
-	else
-	{
-		printf("Run in sync mode\n");
-	}
-
-	const bool allowSyncInAsync = true;
-	WorkerPool wpool;
-	for (unsigned short i = 0; i < curthreadsCount; i++)
-	{
-		ProcessCacheBarThreadWorker* worker = new ProcessCacheBarThreadWorker(counter, filter);
-		worker->func = func;
-		wpool.add(worker, allowSyncInAsync);
-	}
-
-	const auto start = std::chrono::steady_clock::now();
-	if (curRunAsync)
-	{
-		int tileIndex = 0;
-		while (cacher.canRead())
-		{
-			bool isAsync;
-			auto* worker = static_cast<ProcessCacheBarThreadWorker*>(wpool.getFreeWorker(isAsync));
-
-			cacher.load(tileIndex, &worker->holder);
-
-			TileProvider tileProv = prov.tileByIndex(tileIndex);
-
-			worker->updateTask(tileProv);
-
-			if (isAsync)
-				worker->runTask();
-			else
-				worker->runSync();
-		}
-
-		wpool.waitForAll(true);
-	}
-	else // Sync
-	{
-		int tileIndex = 0;
-		while (cacher.canRead())
-		{
-			ProcessCacheBarThreadWorker* worker =  static_cast<ProcessCacheBarThreadWorker*>(wpool.getSyncWorker());
-			cacher.load(tileIndex, &worker->holder);
-
-			TileProvider tileProv = inLayer->prov.tileByIndex(tileIndex);
-
-			worker->updateTask(tileProv);
-			worker->runSync();
-		}
-	}
-
-	const auto end = std::chrono::steady_clock::now();
-	const auto diff = end - start;
-	const double len = std::chrono::duration<double, std::milli>(diff).count();
-	printf("All works ended in %dms\n", (int)len);
-}
-
 
 struct DictWrap
 {

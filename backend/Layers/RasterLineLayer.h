@@ -237,21 +237,13 @@ public:
 
 
 	RetLayers createCacheBarcode(IRasterLayer* inLayer, const BarcodeProperies& propertices, IItemFilter* filter = nullptr);
-	RetLayers processCachedBarcode(IItemFilter* filter);
-	void processCachedBarcode(IItemFilter* filter, const BarFunc& func);
 
 	static const Barscalar& getRandColor(size_t id)
 	{
 		return colors[id % colors.size()];
 	}
 
-	BackPathStr getCacheFilePath(const MetadataProvider& metaFolder)
-	{
-		MetadataProvider m = metaFolder.getSubMeta(getMetaLayerName());
-		return m.getSubFolder("cached.bff");
-	}
-
-	virtual void release(const MetadataProvider& metaFolder) override
+	virtual void release() override
 	{
 		// RasterLayer::release(metaFolder);
 		// if (cacheId != -1)
@@ -265,9 +257,9 @@ public:
 		return RASTER_LINE_LAYER_FID;
 	}
 
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) override
+	virtual void saveLoadState(JsonObjectIOState* state) override
 	{
-		RasterLayer::saveLoadState(state, metaFolder);
+		RasterLayer::saveLoadState(state);
 		state->scInt("cacheId", cacheId);
 		state->scInt("parentLayerId", parentlayerId);
 		state->scFloat("subToRealFactor", subToRealFactor); // TODO: rename it to SubToDsiplay
@@ -282,31 +274,8 @@ public:
 		return mat.height() * subToRealFactor; // Invaild;
 	}
 
-	//virtual void readJson(const BackJson& json, const BackDirStr& metaFolder)
-	//{
-	//	RasterLayer::readJson(json, metaFolder);
-	//}
 
-	//virtual void writeJson(BackJson& json, const BackDirStr& metaFolder, int& counter)
-	//{
-	//	RasterLayer::writeJson(json, metaFolder, counter);
-
-	//	for (int i=0;i < clickResponser.size(); i++)
-	//	{
-	//		// id, id in bar
-	//	}
-	//}
-
-	//void init(const BackImage& src, int tileSize = DEF_TILE_SIZE)
-	//{
-	//	clickResponser.clear();
-	//	mat.assignCopyOf(src);
-	//	clickResponser.resize(mat.length());
-	//	printf("alloced for preview: %d\n", clickResponser.size());
-	//	prov.init(src.width(), src.height(), src.width(), tileSize);
-	//}
-
-	void init(IRasterLayer* layer, const MetadataProvider& metadata)
+	void init(IRasterLayer* layer)
 	{
 		assert(layer != this);
 
@@ -318,7 +287,7 @@ public:
 		parentlayerId = layer->id;
 		prov = layer->prov;
 
-		mkDirIfNotExists(metadata.getSubFolder(getMetaLayerName()));
+		// mkDirIfNotExists(metadata.getSubFolder(getMetaLayerName()));
 	}
 
 	void clearResponser()

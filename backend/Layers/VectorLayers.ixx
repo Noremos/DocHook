@@ -244,54 +244,6 @@ public:
 
 		WriteFile(savePath, json);
 	}
-
-	virtual void saveLoadState(JsonObjectIOState* state, const MetadataProvider& metaFolder) override
-	{
-		IVectorLayer::saveLoadState(state, metaFolder);
-
-		saveLoadChar(state, "vectype", vecType);
-		saveLoadChar(state, "col_r", color.r);
-		saveLoadChar(state, "col_g", color.g);
-		saveLoadChar(state, "col_b", color.b);
-
-		// int imgId = metaFolder.getUniqueId();
-		// state->scInt("mat_id", imgId);
-		int size = primitives.size();
-		state->scInt("primitivesSize", size);
-
-
-		if (state->isReading())
-		{
-			state->scInt("binId", binId);
-
-			StateBinFile::BinStateReader binstate;
-			binstate.open(metaFolder.getFile(intToStr(binId)).string());
-
-			primitives.resize(size);
-			for (int i = 0; i < size; i++)
-			{
-				primitives[i] = new DrawPrimitive(i);
-				primitives[i]->saveLoadState(&binstate);
-			}
-			binstate.close();
-		}
-		else
-		{
-			if (binId == -1)
-			{
-				binId = metaFolder.getUniqueId();
-			}
-			state->scInt("binId", binId);
-
-			StateBinFile::BinStateWriter binstate;
-			binstate.open(metaFolder.getFile(intToStr(binId)).string());
-			for (int i = 0; i < size; i++)
-			{
-				primitives[i]->saveLoadState(&binstate);
-			}
-			binstate.close();
-		}
-	}
 };
 
 export class MultiVectorLayer : public IVectorLayer
