@@ -211,12 +211,12 @@ public:
 			json[name] = data.p->string();
 		case sv_enum:
 		{
-			JsonArray arr(Json::arrayValue);
-			arr.append(data.e->selected);
+			JsonArray arr;
+			arr.push_back(data.e->selected);
 			for (size_t i = 0; i < data.e->values.size(); i++)
 			{
-				arr.append(data.e->names[i]);
-				arr.append(data.e->values[i]);
+				arr.push_back(data.e->names[i]);
+				arr.push_back(data.e->values[i]);
 			}
 			json[name] = arr;
 			break;
@@ -229,16 +229,16 @@ public:
 		switch (type)
 		{
 		case sv_bool:
-			data.b = json[name].asBool();
+			data.b = json[name];
 			break;
 		case sv_int:
-			data.i = json[name].asInt();
+			data.i = json[name];
 			break;
 		case sv_double:
-			data.d = json[name].asDouble();
+			data.d = json[name];
 			break;
 		case sv_str:
-			data.s = new BackString(json[name].asString());
+			data.s = new BackString(json[name]);
 			break;
 		case sv_path:
 			//*data.p = json[name].asString();
@@ -246,13 +246,13 @@ public:
 			break;
 		case sv_enum:
 		{
-			JsonArray arr = json[name];
+			JsonArray arr = json[name].array();
 			data.e = new OptionEnum({});
-			data.e->selected = arr[0].asInt();
+			data.e->selected = arr[0];
 			for (int i = 1; i < arr.size(); i+=2)
 			{
-				data.e->names.push_back(arr[i].asString());
-				data.e->values.push_back(arr[i+ 1].asInt());
+				data.e->names.push_back(arr[i]);
+				data.e->values.push_back(arr[i+ 1]);
 			}
 			break;
 		}

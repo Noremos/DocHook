@@ -8,12 +8,7 @@
 #include <future>
 #include <iostream>
 #include "Barcode/PrjBarlib/include/barcodeCreator.h"
-#include "Json.h"
 
-//#include "sol3/sol.hpp"
-//
-//#include <GLFW/glfw3.h>
-//#include "../libs/glew/include/GL/glew.h"
 #include "../../backend/ProjectSettings.h"
 #include "../Bind/Framework.h"
 

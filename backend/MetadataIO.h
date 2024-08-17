@@ -1,12 +1,4 @@
-#ifdef USE_MODULE
-#undef MEXPORT
-#define MEXPORT export
-module;
-#else
 #pragma once
-#undef MEXPORT
-#define MEXPORT
-#endif
 
 #include <memory>
 #include <functional>
@@ -16,20 +8,11 @@ module;
 #include "Usings.h"
 
 
-#ifdef USE_MODULE
-export module MetadataCoreIO;
-
-// import JsonCore;
-import StateBinIO;
-import BackBind;
-export import JsonState;
-#else
 #include "../../side/Barcode/PrjBarlib/modules/StateBinFile.h"
 #include "JsonState.h"
-#endif
 
 
-MEXPORT class MetadataProvider
+class MetadataProvider
 {
 	BackDirStr path;
 	int& counter;
@@ -66,7 +49,7 @@ public:
 
 
 
-MEXPORT class UserdefIO
+class UserdefIO
 {
 public:
 	virtual void writeData(BackJson& json) const = 0;
@@ -74,7 +57,7 @@ public:
 };
 
 
-MEXPORT inline void ioPoint(JsonArrayIOState* state, int id, BackPoint& p)
+inline void ioPoint(JsonArrayIOState* state, int id, BackPoint& p)
 {
 	auto* obj = state->objectBegin(id);
 	obj->scDouble("x", p.x);
@@ -84,7 +67,7 @@ MEXPORT inline void ioPoint(JsonArrayIOState* state, int id, BackPoint& p)
 
 ///
 
-MEXPORT class IJsonIO
+class IJsonIO
 {
 public:
 	void read(const JsonObject& obj)
@@ -103,7 +86,7 @@ private:
 };
 
 
-MEXPORT class IBffIO
+class IBffIO
 {
 public:
 	virtual void read(StateBinFile::BinState* state)

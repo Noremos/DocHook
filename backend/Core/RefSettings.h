@@ -106,8 +106,8 @@ MEXPORT struct EnumBlock
 		JsonArray arr;
 		for (auto &e : enums)
 		{
-			arr.append(e.name);
-			arr.append(e.value);
+			arr.push_back(e.name);
+			arr.push_back(e.value);
 		}
 		obj["enums"] = std::move(arr);
 
@@ -116,14 +116,14 @@ MEXPORT struct EnumBlock
 
 	void readData(const JsonObject& obj)
 	{
-		*selected = obj["selected"].asInt();
-		filter = obj["filter"].asInt64();
+		*selected = obj["selected"];
+		filter = obj["filter"];
 
 		JsonArray arr = obj["enums"];
 		for (size_t i = 0; i < arr.size(); i++)
 		{
-			BackString name = arr.get(i, "").asString();
-			int id = arr.get(i + 1, 0).asInt();
+			BackString name = arr[i];
+			int id = arr[i + 1];
 			enums.push_back({name, id});
 		}
 	}
@@ -308,26 +308,26 @@ public:
 		switch (type)
 		{
 		case sv_bool:
-			*data.b = json[name].asBool();
+			*data.b = json[name];
 			break;
 		case sv_int:
-			*data.i = json[name].asInt();
+			*data.i = json[name];
 			break;
 		case sv_float:
-			*data.f = json[name].asFloat();
+			*data.f = json[name];
 			break;
 		case sv_double:
-			*data.d = json[name].asDouble();
+			*data.d = json[name];
 			break;
 		case sv_str:
-			*data.s = json[name].asString();
+			*data.s = json[name];
 			break;
 		case sv_path:
 		{
 			JsonObject pathobj = json[name];
-			*data.p->path = pathobj["path"].asString();
-			data.p->filter = pathobj["filter"].asString();
-			data.p->isFile = pathobj["isFile"].asBool();
+			*data.p->path = (BackString)pathobj["path"];
+			data.p->filter = pathobj["filter"];
+			data.p->isFile = pathobj["isFile"];
 			break;
 		}
 		case sv_enum:

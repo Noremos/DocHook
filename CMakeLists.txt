@@ -142,23 +142,9 @@ target_sources(${BTARGET}
     ${SOURCES_MODULES}
 )
 
-# add_library(foo)
-# # Add the module file to the library
-# target_sources(foo
-#   PUBLIC
-#     FILE_SET CXX_MODULES FILES
-#       foo.cxx
-# )
-
-
-
 # this is heuristically generated, and may not be correct
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${BTARGET} PRIVATE glfw)
-
-# this is heuristically generated, and may not be correct
-find_package(jsoncpp CONFIG REQUIRED)
-target_link_libraries(${BTARGET} PRIVATE JsonCpp::JsonCpp)
 
 find_package(GLEW REQUIRED)
 target_link_libraries(${BTARGET} PRIVATE GLEW::GLEW)

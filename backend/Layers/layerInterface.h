@@ -14,7 +14,7 @@ module;
 #include <list>
 
 #include <cassert>
-#include "../Bind/Json.h"
+#include "../JsonState.h"
 #include "Barcode/PrjBarlib/include/barstrucs.h"
 
 #include "../CSBind.h"
@@ -236,40 +236,9 @@ public:
 	{
 		return tileByIndex(index).offset;
 	}
-
-
-	// WindowVec2 localDisplayPos;
-	// ImVec2 displaySize;
-
-	// int getRealX(int x)
-	// {
-	// 	return static_cast<float>(x - localDisplayPos.x) * (width / displaySize.x);
-	// }
-	// int getRealY(int y)
-	// {
-	// 	return static_cast<float>(y - localDisplayPos.y) * (height / displaySize.y);
-	// }
-
-	// int toDisplayX(int x)
-	// {
-	// 	return static_cast<float>(x) * (displaySize.x / width) + localDisplayPos.x;
-	// }
-	// int toDisplayY(int y)
-	// {
-	// 	return static_cast<float>(y) * (displaySize.y / height) + localDisplayPos.y;
-	// }
-
-	//bc::point toLocal(uint x, uint y) const
-	//{
-	//	return { (x + offset.x) / displayFactor, (y + offset.y) / displayFactor };
-	//}
 };
 
 
-// struct IGuiLayer
-//{
-//	virtual void draw() = 0;
-//};
 
 inline int getCon(int total, int part)
 {

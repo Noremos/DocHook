@@ -1,28 +1,16 @@
-#ifdef USE_MODULE
-#undef MEXPORT
-#define MEXPORT export
-module;
-#else
 #pragma once
-#undef MEXPORT
-#define MEXPORT
-#endif
 
 
 #include "../Bind/Json.h"
 
-#ifdef USE_MODULE
-export module JsonState;
-#endif
-
 
 //import BackBind;
 
-MEXPORT class JsonObjectIOState;
+class JsonObjectIOState;
 
-MEXPORT class JsonArrayIOState;
-MEXPORT class JsonArrayIOStateReader;
-MEXPORT class JsonArrayIOStateWriter;
+class JsonArrayIOState;
+class JsonArrayIOStateReader;
+class JsonArrayIOStateWriter;
 
 class JsonObjectIOState
 {
@@ -72,28 +60,28 @@ public:
 
 	void scBool(const BackString& name, bool& val)
 	{
-		val = json[name].asBool();
+		val = json[name];
 	}
 
 	void scInt(const BackString& name, int& val)
 	{
-		val = json[name].asInt();
+		val = json[name];
 	}
 	void scFloat(const BackString& name, float& val)
 	{
-		val = json[name].asFloat();
+		val = json[name];
 	}
 	void scDouble(const BackString& name, double& val)
 	{
-		val = json[name].asDouble();
+		val = json[name];
 	}
 	void scStr(const BackString& name, BackString& val)
 	{
-		val = json[name].asString();
+		val = json[name];
 	}
 	void scPath(const BackString& name, BackPathStr& val)
 	{
-		val = json[name].asString();
+		val = (BackString)json[name];
 	}
 
 
@@ -170,19 +158,18 @@ public:
 
 	JsonArrayIOState* arrayBegin(const BackString& name, int& size)
 	{
-		JsonArray jarr(Json::ValueType::arrayValue);
-		json[name] = jarr;
-		BackJson& refjarr = json[name];
-		refjarr.resize(size);
+		BackJson& refjarr = json[name] = BackJson::array();
+		for (size_t i = 0; i < size; i++)
+			refjarr.push_back(0);
+
 		curArray = std::make_unique<TAW>(refjarr);
 		return curArray.get();
 	}
 
 	JsonObjectIOState* objectBegin(const BackString& name)
 	{
-		JsonObject jobj(Json::ValueType::objectValue);
-		json[name] = jobj;
-		BackJson& refjobj = json[name];
+
+		BackJson& refjobj = json[name] = BackJson::object();
 		curObj = std::make_unique<TJsonObjectIOStateWriter<TAW>>(refjobj);
 		return curObj.get();
 	}
@@ -210,33 +197,33 @@ public:
 
 	void scUchar(int ind, buchar& val)
 	{
-		val = static_cast<buchar>(json[ind].asUInt());
+		val = static_cast<buchar>((uint)json[ind]);
 	}
 
 	void scBool(int ind, bool& val)
 	{
-		val = json[ind].isBool();
+		val = json[ind];
 	}
 
 	void scInt(int ind, int& val)
 	{
-		val = json[ind].asInt();
+		val = json[ind];
 	}
 	void scFloat(int ind, float& val)
 	{
-		val = json[ind].asFloat();
+		val = json[ind];
 	}
 	void scDouble(int ind, double& val)
 	{
-		val = json[ind].asDouble();
+		val = json[ind];
 	}
 	void scStr(int ind, BackString& val)
 	{
-		val = json[ind].asString();
+		val = json[ind];
 	}
 	void scPath(int ind, BackPathStr& val)
 	{
-		val = json[ind].asString();
+		val = (std::string)json[ind];
 	}
 
 	JsonArrayIOState* arrayBegin(int ind, int& size)
@@ -307,26 +294,26 @@ public:
 
 	JsonArrayIOState* arrayBegin(int ind, int& size)
 	{
-		JsonArray jarr(Json::ValueType::arrayValue);
-		json[ind] = jarr;
-		BackJson& refjarr = json[ind];
-		refjarr.resize(size);
+
+		BackJson& refjarr = json[ind] = BackJson::array();
+		for (size_t i = 0; i < size; i++)
+		{
+			refjarr.push_back(0);
+		}
 		curArray = std::make_unique<JsonArrayIOStateWriter>(refjarr);
 		return dynamic_cast<JsonArrayIOState*>(curArray.get());
 	}
 
 	JsonObjectIOState* objectBegin(int ind)
 	{
-		JsonArray jobj(Json::ValueType::objectValue);
-		json[ind] = jobj;
-		BackJson& refobj = json[ind];
+		BackJson& refobj = json[ind] = BackJson::object();
 		curObj = std::make_unique<TJsonObjectIOStateWriter<JsonArrayIOStateWriter>>(refobj);
 		return dynamic_cast<JsonObjectIOState*>(curObj.get());
 	}
 
 	TJsonObjectIOStateWriter<JsonArrayIOStateWriter>* append()
 	{
-		curObj = std::make_unique<TJsonObjectIOStateWriter<JsonArrayIOStateWriter>>(json.append(BackJson()));
+		curObj = std::make_unique<TJsonObjectIOStateWriter<JsonArrayIOStateWriter>>(json.emplace_back());
 		return curObj.get();
 	}
 
@@ -341,5 +328,5 @@ public:
 };
 
 
-MEXPORT using JsonObjectIOStateReader = TJsonObjectIOStateReader<JsonArrayIOStateReader>;
-MEXPORT using JsonObjectIOStateWriter = TJsonObjectIOStateWriter<JsonArrayIOStateWriter>;
+using JsonObjectIOStateReader = TJsonObjectIOStateReader<JsonArrayIOStateReader>;
+using JsonObjectIOStateWriter = TJsonObjectIOStateWriter<JsonArrayIOStateWriter>;

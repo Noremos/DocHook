@@ -2,16 +2,16 @@
 #pragma once
 #include <iostream>
 
-#include <json/json.h>
+#include "../side/json.hpp"
 #include "Common.h"
 
 //  module JsonCore;
 
 //import BackBind;
 
-using BackJson = Json::Value;
-using JsonObject = BackJson;
-using JsonArray = BackJson;
+using BackJson = nlohmann::json;
+using JsonObject = nlohmann::json;
+using JsonArray = nlohmann::json;
 
 
 inline BackJson jsonFromFile(const BackPathStr& path)
@@ -40,9 +40,6 @@ inline void jsonToFile(const BackJson& json, const BackPathStr& path)
  		return;
  	}
 
-    Json::StreamWriterBuilder wbuilder;
-    // Configure the Builder, then ...
-    std::string outputConfig = Json::writeString(wbuilder, json);
- 	file << outputConfig;
+ 	file << json;
  	file.close();
  }
