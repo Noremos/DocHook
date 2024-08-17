@@ -57,15 +57,12 @@ public:
 class RasterFromDiskGuiLayer : public RasterToolsLayer<RasterFromDiskLayer>
 {
 public:
-	HeimapOverlap heimap;
-	TilemapOverlap tilemap;
-
 	bool drawHeimap;
 
 	RasterFromDiskGuiLayer(RasterFromDiskLayer* fromCore = nullptr) : RasterToolsLayer<RasterFromDiskLayer>(fromCore)
 	{
 		drawHeimap = false;
-		heimap.enable = false;
+		// heimap.enable = false;
 	}
 
 	virtual void toGuiData()
@@ -130,11 +127,11 @@ public:
 				// Stop drawing the rectangle
 				isDrawing = false;
 				auto absP = ds.core.toSysGlob(toBP(rectMin - winpos));
-				auto ps = data->cs.proj.getThisProj(ds.core.sysProj, absP, false);
+				auto ps = absP;
 				const BackPixelPoint pixSt = data->cs.toLocal(ps);
 
 				absP = ds.core.toSysGlob(toBP(rectMax - winpos));
-				ps = data->cs.proj.getThisProj(ds.core.sysProj, absP, false);
+				ps = absP;
 				const BackPixelPoint pixEnd = data->cs.toLocal(ps);
 
 				data->setSubImage(0);

@@ -405,38 +405,6 @@ public:
 
 	void drawToolboxInner(ILayerWorker& context)
 	{
-		if (ImGui::Button("Выгрузить слой"))
-		{
-			BackPathStr path = getSavePath({ "geojson", "*.geojson",
-											"json", "*.json" });
-			Base::data->savePolygonsAsGeojson(path);
-		}
-
-		// Add ploygon;
-		// Add line
-		// Move point
-		// Move line
-		// Drop
-		// export
-		// import
-
-
-		//addCB.draw("Режим добавления");
-		//editCB.draw("Режим изменения");
-		//removeCB.draw("Режим удаления");
-
-		//switch (Base::data->vecType)
-		//{
-		//case VectorLayer::VecType::points:
-		//	drawPointsToolbox(context);
-		//	break;
-		//case VectorLayer::VecType::polygons:
-		//	drawPolygonToolbox(context);
-		//	break;
-		//default:
-		//	break;
-		//}
-
 	}
 
 

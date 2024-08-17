@@ -8,7 +8,6 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include <stdio.h>
-#include "../side/implot/implot.h"
 //#define GL_SILENCE_DEPRECATION
 //#if defined(IMGUI_IMPL_OPENGL_ES2)
 //#include <GLES2/gl2.h>
@@ -79,7 +78,7 @@ int main(int, char** argv)
 //	glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
 //#endif
 	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "SatHomology", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "DocHook", NULL, NULL);
 	if (window == NULL)
 		return 1;
 	glfwMakeContextCurrent(window);
@@ -88,7 +87,6 @@ int main(int, char** argv)
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImPlot::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;	   // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;	  // Enable Gamepad Controls
@@ -160,7 +158,6 @@ int main(int, char** argv)
 	MyApp::Close();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
-	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 	glfwDestroyWindow(window);
 	glfwTerminate();

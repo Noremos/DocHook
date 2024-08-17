@@ -502,14 +502,8 @@ public:
 	int layerCounter = 0;
 	bool visible = true;
 
-	void init(int proj)
-	{
-		cs.init(proj);
-	}
-
 	void initCSFrom(const CSBinding& csf)
 	{
-		assert(cs.proj.isInited());
 		cs.globOrigin = csf.globOrigin;
 		std::copy(csf.img_transform, csf.img_transform + 6, cs.img_transform);
 	}
@@ -585,11 +579,6 @@ public:
 	int getSysId() const
 	{
 		return id;
-	}
-
-	bool hasCS() const
-	{
-		return cs.proj.isInited();
 	}
 
 	BackPoint getNormGlobStart() const

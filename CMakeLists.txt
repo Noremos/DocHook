@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 if (BUILD_TEST)
     set(BTARGET SatTests)
 else()
-    set(BTARGET SatHomology)
+    set(BTARGET DocHook)
 endif()
 project(${BTARGET})
 
@@ -28,9 +28,6 @@ list(FILTER SOURCES EXCLUDE REGEX ".*Source\\.cpp$")
 
 set(SIDE_SOURCES
     side/sago/platform_folders.cpp
-    side/implot/implot_demo.cpp
-    side/implot/implot_items.cpp
-    side/implot/implot.cpp
     side/imgui/imgui.cpp
     side/imgui/imgui_demo.cpp
     side/imgui/imgui_draw.cpp
@@ -54,8 +51,6 @@ list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Algs/CachedBarcodeAlg\\.ixx
 list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Interfaces/IAlg\\.ixx$")
 list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Layers/SimpleLineDisplay\\.ixx$")
 list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Layers/SimpleLineDisplay\\.ixx$")
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*frontend/Viewer3d\\.ixx$")
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*frontend/Object3d\\.ixx$")
 list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*side/Barcode/PrjBarlib/modules/BinStateFileWrapper\\.ixx$")
 list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*side/Barcode/PrjBarlib/modules/ImageReader\\.ixx$")
 
@@ -164,13 +159,6 @@ target_link_libraries(${BTARGET} PRIVATE glfw)
 # this is heuristically generated, and may not be correct
 find_package(jsoncpp CONFIG REQUIRED)
 target_link_libraries(${BTARGET} PRIVATE JsonCpp::JsonCpp)
-
-find_package(Lua REQUIRED)
-target_include_directories(${BTARGET} PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(${BTARGET} PRIVATE ${LUA_LIBRARIES})
-
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
-target_link_libraries(${BTARGET} PRIVATE unofficial::sqlite3::sqlite3)
 
 find_package(GLEW REQUIRED)
 target_link_libraries(${BTARGET} PRIVATE GLEW::GLEW)

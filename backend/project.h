@@ -168,9 +168,6 @@ public:
 	LDATA* addLayerData(int projId = -1)
 	{
 		LDATA* d = layers.add<LDATA>();
-		if (projId != -1)
-			d->cs.init(projId);
-
 		//d->prov.init(u_displayFactor, tileSize, reader->width());
 		d->id = settings.layerCounter++;
 		return d;

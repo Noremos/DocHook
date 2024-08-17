@@ -2,7 +2,7 @@
 workspace "Barcode Research"
    configurations { "Debug", "Release" }
 
-project "SatHomology"
+project "DocHook"
    kind "ConsoleApp"
    language "C++"
    targetdir "dev/%{cfg.buildcfg}"

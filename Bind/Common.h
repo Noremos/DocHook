@@ -1,14 +1,4 @@
-// #define USE_MODULE
-
-#ifdef USE_MODULE
-#undef MEXPORT
-#define MEXPORT export
-module;
-#else
 #pragma once
-#undef MEXPORT
-#define MEXPORT
-#endif
 
 #include <filesystem>
 #include <string>
@@ -16,39 +6,23 @@ module;
 //#include <random>
 #include <fstream>
 
-#ifdef USE_MODULE
-export module BackBind;
-#endif
+using BackStringView = std::string_view;
+using BackString = std::string;
+using BackDirStr = std::filesystem::path;
+using BackPathStr = std::filesystem::path;
+using BackFileReader = std::ifstream;
+using BackFileWriter = std::ofstream;
 
-MEXPORT using BackStringView = std::string_view;
-MEXPORT using BackString = std::string;
-MEXPORT using BackDirStr = std::filesystem::path;
-MEXPORT using BackPathStr = std::filesystem::path;
-MEXPORT using BackFileReader = std::ifstream;
-MEXPORT using BackFileWriter = std::ofstream;
+using buint = unsigned int;
+using buchar = unsigned char;
+using bushort = unsigned short;
 
-MEXPORT using buint = unsigned int;
-MEXPORT using buchar = unsigned char;
-MEXPORT using bushort = unsigned short;
-
-#ifdef USE_MODULE
-MEXPORT BackString operator+(const BackString& left, BackStringView right)
-{
-	return left + right;
-}
-
-MEXPORT BackString operator+(const BackString& left, const BackString& right)
-{
-	return left + right;
-}
-#endif
-
-MEXPORT inline bool StrEquals(const BackString& str, BackStringView view)
+inline bool StrEquals(const BackString& str, BackStringView view)
 {
 	return str == view;
 }
 
-MEXPORT inline void WriteFile(const BackPathStr& fileName, const BackString& content)
+inline void WriteFile(const BackPathStr& fileName, const BackString& content)
 {
 	BackFileWriter w;
 	w.open(fileName, std::ios::out | std::ios::trunc);
@@ -56,10 +30,7 @@ MEXPORT inline void WriteFile(const BackPathStr& fileName, const BackString& con
 	w.close();
 }
 
-MEXPORT constexpr int DEFAULT_PROJECTION = 4326;
-MEXPORT constexpr const char* const DEFAULT_PROJECTION_STR = "4326";
-
-MEXPORT struct BackSize
+struct BackSize
 {
 	int wid, hei;
 	BackSize(int _wid, int _hei)
@@ -70,7 +41,7 @@ MEXPORT struct BackSize
 };
 
 
-MEXPORT struct BackColor
+struct BackColor
 {
 	buchar r = 0;
 	buchar g = 0;
@@ -93,7 +64,7 @@ MEXPORT struct BackColor
 	}
 };
 
-MEXPORT template<typename T>
+template<typename T>
 struct TPoint
 {
 	T x, y;
@@ -186,10 +157,10 @@ struct TPoint
 	}
 };
 
-MEXPORT using BackPixelPoint = TPoint<int>;
-MEXPORT using BackPoint = TPoint<double>;
+using BackPixelPoint = TPoint<int>;
+using BackPoint = TPoint<double>;
 
-MEXPORT class Variables
+class Variables
 {
 public:
 	static BackPathStr rootPath;
@@ -215,7 +186,7 @@ public:
 };
 
 
-MEXPORT struct toStdStr
+struct toStdStr
 {
 	using STRTYPE = std::string;
 
@@ -227,7 +198,7 @@ MEXPORT struct toStdStr
 };
 
 
-MEXPORT struct TileIterator
+struct TileIterator
 {
 	buint start;
 	buint tileSize;
@@ -291,7 +262,7 @@ MEXPORT struct TileIterator
 	}
 };
 
-MEXPORT inline int strToInt(const BackString& string, bool& ready)
+inline int strToInt(const BackString& string, bool& ready)
 {
 	char* endptr;
 	int numI = std::strtol(string.c_str(), &endptr, 10);
@@ -299,24 +270,24 @@ MEXPORT inline int strToInt(const BackString& string, bool& ready)
 
 	return numI;
 }
-MEXPORT inline int strToInt(const BackString& string)
+inline int strToInt(const BackString& string)
 {
 	char* endptr;
 	return std::strtol(string.c_str(), &endptr, 10);
 }
 
-MEXPORT template<class T>
+template<class T>
 inline BackString intToStr(T value)
 {
 	return std::to_string(value);
 }
 
-MEXPORT inline bool pathExists(const BackPathStr& filePath)
+inline bool pathExists(const BackPathStr& filePath)
 {
 	return std::filesystem::exists(filePath);
 }
 
-MEXPORT template<class StrT>
+template<class StrT>
 inline bool mkdir(const StrT& path)
 {
 	BackDirStr filePath(path);
@@ -324,7 +295,7 @@ inline bool mkdir(const StrT& path)
 }
 
 
-MEXPORT inline void mkDirIfNotExists(const BackDirStr& dirPath)
+inline void mkDirIfNotExists(const BackDirStr& dirPath)
 {
 	if (!pathExists(dirPath))
 	{
@@ -332,12 +303,12 @@ MEXPORT inline void mkDirIfNotExists(const BackDirStr& dirPath)
 	}
 }
 
-MEXPORT inline void dropDir(const BackDirStr& dirPath)
+inline void dropDir(const BackDirStr& dirPath)
 {
 	std::filesystem::remove_all(dirPath);
 }
 
-MEXPORT inline void dropDirIfExists(const BackDirStr& dirPath)
+inline void dropDirIfExists(const BackDirStr& dirPath)
 {
 	if (pathExists(dirPath))
 	{
@@ -346,7 +317,7 @@ MEXPORT inline void dropDirIfExists(const BackDirStr& dirPath)
 }
 
 
-MEXPORT inline bool endsWith(const BackString& string, const BackString endl)
+inline bool endsWith(const BackString& string, const BackString endl)
 {
 	signed long long pos = string.length() - endl.length();
 	if (pos <= 0)

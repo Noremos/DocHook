@@ -348,7 +348,7 @@ public:
 
 	ImVec2 projItemGlobToDisplay(const CSBinding& itemCs, const BackPoint& itemPos) const
 	{
-		auto ps = core.sysProj.getThisProj(itemCs.proj, itemPos, true);
+		auto ps = itemPos;
 		return sysglobToDisplay(ps);
 	}
 
@@ -361,13 +361,13 @@ public:
 	BackPoint projItemLocalToSys(const CSBinding& itemCs, const BackPixelPoint& itemPos) const
 	{
 		BackPoint bp = itemCs.toGlobal(itemPos.x, itemPos.y);
-		return core.sysProj.getThisProj(itemCs.proj, bp, true);
+		return bp;
 	}
 
 	ImVec2 projItemLocalToDisplay(const CSBinding& itemCs, const BackPixelPoint& itemPos) const
 	{
 		BackPoint bp = itemCs.toGlobal(itemPos.x, itemPos.y);
-		auto ps = core.sysProj.getThisProj(itemCs.proj, bp, true);
+		auto ps = bp;
 		return sysglobToDisplay(ps);
 	}
 
@@ -384,12 +384,12 @@ public:
 
 	BackPoint getSysToItemStartPos(const CSBinding& itemCs) const
 	{
-		return itemCs.proj.getThisProj(core.sysProj, core.csPos, true);
+		return core.csPos;
 	}
 
 	BackPoint getSysToItemEndPos(const CSBinding& itemCs) const
 	{
-		return itemCs.proj.getThisProj(core.sysProj, core.csPos + getSysSize(), true);
+		return core.csPos + getSysSize();
 	}
 
 	ImVec2 sysglobToDisplay(const BackPoint& p) const
@@ -448,19 +448,4 @@ public:
 	{
 		return inRange(core.csPos, core.csPos + getSysSize(), st, ed);
 	}
-
-	//int getRealX(int x)
-	//{
-	//	return static_cast<float>(x - csPos) * (width / displaySize.x);
-	//}
-
-
-   //int toDisplayX(int x)
-   //{
-	  // return static_cast<float>(x) * (displaySize.x / width) + localDisplayPos.x;
-   //}
-   //int toDisplayY(int y)
-   //{
-   //	return static_cast<float>(y) * (displaySize.y / height) + localDisplayPos.y;
-   //}
 };

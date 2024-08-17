@@ -208,46 +208,4 @@ public:
 	{
 		return VECTOR_LAYER_FID;
 	}
-
-	void savePolygonsAsGeojson(const BackPathStr& savePath) const
-	{
-		BackString json = "{\"type\":\"FeatureCollection\",";
-		json += "\"name\":\"";
-		json += name;
-		json += "\",";
-		json += "\"crs\": { \"type\": \"name\", \"properties\":{\"name\": \"urn:ogc:def:crs:EPSG::";
-		json += intToStr(cs.getProjId()); //3857
-		json += "\" } },";
-		json +=  "\"features\":[ ";
-
-		for (int i = 0, total = primitives.size(); i < total; ++i)
-		{
-			BackString safsd = "{ \"type\": \"Feature\",";
-			safsd += "\"properties\":{\"id\":"; // TODO! Check
-			safsd += intToStr(i + 1);
-			safsd += "}, ";
-
-			switch (vecType)
-			{
-			case VecType::points:
-				safsd += primitives[i]->pointsAsGeojson();
-				break;
-			case VecType::polygons:
-				safsd += primitives[i]->polygonAsGeojson();
-				break;
-			default:
-				assert(false);
-				throw;
-			}
-			safsd += "},";
-
-			json += safsd;
-		}
-
-
-		json[json.length() - 1] = ']';
-		json += "}";
-
-		WriteFile(savePath, json);
-	}
 };

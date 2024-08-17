@@ -21,18 +21,18 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "SatHomology",
+            "name": "DocHook",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/Build/Debug/SatHomology",
+            "program": "${workspaceFolder}/Build/Debug/DocHook",
             "args": [],
             "cwd": "${workspaceFolder}",
         },
         {
-            "name": "Build SatHomology",
+            "name": "Build DocHook",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/Build/Debug/SatHomology",
+            "program": "${workspaceFolder}/Build/Debug/DocHook",
             "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build"
@@ -41,7 +41,7 @@
             "name": "Release",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/Build/Release/SatHomology",
+            "program": "${workspaceFolder}/Build/Release/DocHook",
             "args": [],
             "cwd": "${workspaceFolder}"
         },

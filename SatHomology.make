@@ -21,7 +21,7 @@ ifeq ($(config),debug)
     AR = ar
   endif
   TARGETDIR = dev/Debug
-  TARGET = $(TARGETDIR)/SatHomology
+  TARGET = $(TARGETDIR)/DocHook
   OBJDIR = obj/Debug
   DEFINES += -DDEBUG
   INCLUDES += -Iside -Iside/Barcode/PrjBarlib/modules -Iside/imgui -IBind -I.
@@ -56,7 +56,7 @@ ifeq ($(config),release)
     AR = ar
   endif
   TARGETDIR = dev/Release
-  TARGET = $(TARGETDIR)/SatHomology
+  TARGET = $(TARGETDIR)/DocHook
   OBJDIR = obj/Release
   DEFINES += -DNDEBUG
   INCLUDES += -Iside -Iside/Barcode/PrjBarlib/modules -Iside/imgui -IBind -I.
@@ -186,7 +186,7 @@ ifeq (.exe,$(findstring .exe,$(ComSpec)))
 endif
 
 $(TARGET): $(GCH) ${CUSTOMFILES} $(OBJECTS) $(LDDEPS) $(RESOURCES) | $(TARGETDIR)
-	@echo Linking SatHomology
+	@echo Linking DocHook
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -209,7 +209,7 @@ else
 endif
 
 clean:
-	@echo Cleaning SatHomology
+	@echo Cleaning DocHook
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)

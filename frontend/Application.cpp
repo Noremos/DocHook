@@ -7,7 +7,6 @@
 #include <memory>
 #include <future>
 #include <iostream>
-#include "../side/implot/implot.h"
 #include "Barcode/PrjBarlib/include/barcodeCreator.h"
 #include "Json.h"
 
@@ -978,8 +977,6 @@ namespace MyApp
 		}
 		else
 			minThreadCount = 2;
-
-		backend.getDS().sysProj.init(DEFAULT_PROJECTION);
 
 		LayerFactory::RegisterFactory<RasterGuiLayer, RasterLayer>(RASTER_LAYER_FID);
 		LayerFactory::RegisterFactory<RasterFromDiskGuiLayer, RasterFromDiskLayer>(RASTER_DISK_LAYER_FID);
