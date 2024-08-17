@@ -54,7 +54,6 @@ public:
 		copiedId = data->getSysId();
 		strId = data->name;
 		strId += intToStr(copiedId);
-		projSet.setup(data->cs);
 	}
 
 	T* getData()
@@ -94,14 +93,13 @@ public:
 		ImGui::End();
 	}
 
-	ProjectionSettings projSet;
 	virtual void drawProperty()
 	{
-		projSet.draw();
+
 	}
 	virtual void applyPropertyChanges()
 	{
-		projSet.setup(data->cs);
+
 	}
 
 

@@ -21,21 +21,21 @@
 #include "../backend/MatrImg.h"
 #include "../backend/Layers/layerInterface.h"
 #include "../backend/Layers/Rasterlayers.h"
-#include "../backend/Layers/RasterLineLayer.h"
 #include "../backend/Layers/VectorLayers.h"
 #include "../backend/ScreenCapture.h"
 #include "Layers/GuiRasterLayers.h"
 #include "Layers/IGuiLayer.h"
-#include "Layers/GuiRasterLineLayer.h"
 #include "GuiWidgets.h"
 #include "../backend/project.h"
+#include "../side/clip/clip.h"
+#include "Layers/GuiVectorLayers.h"
+#include "../backend/CachedBarcode.h"
 
 // import Platform;
 import GuiLayers;
 // import BarcodeModule;
 import GuiOverlap;
 
-import GuiVectorLayers;
 
 // import ProjectSettings;
 //import BackBind;
@@ -81,27 +81,24 @@ public:
 		return proj->state >= GuiState::Loaded;
 	}
 
-	inline RetLayers createCacheBarcode(InOutLayer& iol, const BarcodeProperies& propertices, IItemFilter* filter = nullptr)
-	{
-		Project* proj = Project::proj;
-
-		IRasterLayer* inLayer = proj->getInRaster(iol);
-
-		RasterLineLayer* layer = proj->addOrUpdateOut<RasterLineLayer>(iol, inLayer->cs.getProjId());
-		auto ret = layer->createCacheBarcode(inLayer, propertices, filter);
-
-		proj->saveProject();
-
-		return ret;
-	}
-
-
+	VectorLayer* vecLayer = nullptr;
 	VectorLayer* addVectorLayer()
 	{
-		return proj->addLayerData<VectorLayer>();
+		if (vecLayer == nullptr)
+		{
+			vecLayer = proj->addLayerData<VectorLayer>();
+		}
+		else
+		{
+			vecLayer->clear();
+		}
+
+		vecLayer->vecType = VectorLayer::VecType::polygons;
+		return vecLayer;
 	}
 
 
+	std::vector<BarlineWrapper> barlies;
 	void process(BackImage& img, VectorLayer* vec, bc::barstruct& constr, IItemFilter* filter)
 	{
 		// constr.proctype = bc::ProcType::f0t255;
@@ -117,15 +114,15 @@ public:
 
 			if (line->matr.size() < 40)
 				continue;
+			auto rect = line->getBarRect();
 
+			BarlineWrapper& wrap = barlies.emplace_back(line);
 			if (filter)
 			{
-				BarlineWrapper wrap(line);
 				if (!filter->pass(&wrap))
 					continue;
 			}
 
-			auto rect = line->getBarRect();
 			DrawPrimitive* priv = vec->addPrimitive({10,100,40});
 			priv->addPoint(rect.x, rect.y);
 			priv->addPoint(rect.x + rect.width, rect.y);
@@ -134,8 +131,9 @@ public:
 		}
 	}
 
-	RetLayers createCacheBarcode2(IRasterLayer* inLayer, const BarcodeProperies& propertices, IItemFilter* filter)
+	VectorLayer* createCacheBarcode2(IRasterLayer* inLayer, const BarcodeProperies& propertices, IItemFilter* filter = nullptr)
 	{
+		barlies.clear();
 		if (filter)
 		{
 			// Input Layer prepatons
@@ -149,7 +147,6 @@ public:
 		BackImage img = inLayer->getImage(100000);
 
 		VectorLayer* vec = addVectorLayer();
-		vec->vecType = VectorLayer::VecType::polygons;
 
 		const auto start = std::chrono::steady_clock::now();
 		// Setup
@@ -170,7 +167,7 @@ public:
 		const double len = std::chrono::duration<double, std::milli>(diff).count();
 		printf("All works ended in %dms\n", (int)len);
 
-		return {vec};
+		return vec;
 	}
 
 	inline RasterFromDiskLayer* loadImage(const BackPathStr& path, int step)
@@ -253,6 +250,31 @@ GuiBackend backend;
 namespace MyApp
 {
 	inline int maxThreadCount, minThreadCount;
+
+	LayersVals layersVals;// (backend);
+	GuiFilter filter;
+
+	VectorLayer* allBarcodeDisaplyLayer = nullptr;;
+	VectorGuiLayer* allBarcodeDisaplyGuiLayer = nullptr;;
+
+	VectorLayer* previewLayer = nullptr;
+	VectorGuiLayer* previewGuiLayer = nullptr;
+
+	RasterLayer* windowFrameLayer = nullptr;
+	RasterGuiLayer* windowFrameGuiLayer = nullptr;
+
+	void prepare()
+	{
+		windowFrameLayer = backend.proj->addLayerData<RasterLayer>();
+		windowFrameGuiLayer = layersVals.addLayer<RasterGuiLayer, RasterLayer>("Window fram", windowFrameLayer);
+
+		allBarcodeDisaplyLayer = backend.addVectorLayer();
+		allBarcodeDisaplyGuiLayer = layersVals.addLayer<VectorGuiLayer, VectorLayer>("all lines vec", allBarcodeDisaplyLayer);
+
+		previewLayer = backend.proj->addLayerData<VectorLayer>();
+		previewLayer->vecType = VectorLayer::VecType::polygons;
+		previewGuiLayer = layersVals.addLayer<VectorGuiLayer, VectorLayer>("selected vec", previewLayer);
+	}
 
 	void setImGuiStyle(float highDPIscaleFactor)
 	{
@@ -344,7 +366,7 @@ namespace MyApp
 	};
 
 	WindowsValues commonValus;
-	LayersVals layersVals;// (backend);
+
 
 
 
@@ -427,23 +449,24 @@ namespace MyApp
 		uint32_t winId = 0;
 	};
 
+
 	void createBarWindow(IRasterLayer* inLayer)
 	{
 		BarcodeProperies barset;
 
-		RetLayers ret = backend.createCacheBarcode2(inLayer, barset, nullptr);
-		layersVals.setLayers(ret, "barcode");
+		backend.createCacheBarcode2(inLayer, barset);
+		allBarcodeDisaplyGuiLayer->toGuiData();
 	}
 
+	int width = 0;
 	void createBarLayers(const BackImage& img)
 	{
-		RasterLayer* layer = backend.proj->addLayerData<RasterLayer>();
-		layer->mat = img;
+		windowFrameLayer->mat = img;
+		windowFrameGuiLayer->toGuiData();
+		windowFrameGuiLayer->lockAtThis(layersVals.lastRealSize);
+		width = img.width();
 
-		RasterGuiLayer* guiLayer = layersVals.addLayer<RasterGuiLayer, RasterLayer>("Loaded", layer);
-		guiLayer->lockAtThis(layersVals.lastRealSize);
-
-		createBarWindow(layer);
+		createBarWindow(windowFrameLayer);
 	}
 
 	constexpr float itemWidth = 100.0f;
@@ -555,6 +578,9 @@ namespace MyApp
 
 				for (ImageData& data : imgs)
 				{
+					if (data.height == 0 || data.width == 0 || data.data == nullptr)
+						continue;
+
 					ImgData& guiimg = images.emplace_back();
 					guiimg.src = BackImage(data.width, data.height, data.channels, (uchar*)data.data.get());
 					BackPoint imgsize(data.width, data.height);
@@ -574,12 +600,12 @@ namespace MyApp
 			ImGui::SameLine();
 			if (ImGui::Button(BU8("Скриншот по имени")))
 			{
-				BarcodeProperies barset;
-				RasterFromDiskLayer layer;
-				layer.open("/Users/sam/1.png");
+				// BarcodeProperies barset;
+				// // RasterFromDiskLayer layer;
+				// // layer.open("/Users/sam/1.png");
 
-				RetLayers ret = backend.createCacheBarcode2(&layer, barset, nullptr);
-				layersVals.setLayers(ret, "barcode");
+				// RetLayers ret = backend.createCacheBarcode2(&layer, barset, filter.getFilter());
+				// layersVals.setLayers(ret, "barcode");
 
 				ImageData img = CaptureWindowByName(buffer);
 				if (img.data)
@@ -593,6 +619,109 @@ namespace MyApp
 	}
 
 	int menuBarHeight;
+	bool filtered = false;
+
+	class BufferText
+	{
+	public:
+		char* getBuffer()
+		{
+			return buffer;
+		}
+
+		BackString getText() const
+		{
+			return BackString(buffer);
+		}
+
+		void setText(const BackString& text, bool manualy)
+		{
+			if (buffer[0] == '\0')
+				blockAutoGen = false;
+
+			if (!manualy && blockAutoGen)
+				return;
+
+			memcpy((char*)buffer, text.data(), text.length());
+		}
+
+		void markManualy()
+		{
+			blockAutoGen = true;
+		}
+
+	private:
+		char buffer[1000] = "\0";
+		bool blockAutoGen = false;
+	};
+
+	struct ImageMeta
+	{
+		BackString name;
+		BufferText prefix;
+		BufferText altText;
+
+		float hilightColor[4] {0.f, 1.f, 0.5f, 0.f};
+
+		void saveIamge(const BackImage& img)
+		{
+			BackPathStr path = getSavePath({ "Image Files", "*.png *.jpg *.jpeg *.bmp"});
+
+			auto* convPrim = previewLayer->primitives[0];
+			auto& points = convPrim->points;
+			BackImage copyimg = img;
+			Barscalar color(convPrim->color.r, convPrim->color.g, convPrim->color.b);
+			const int thicness = std::max(copyimg.width(), copyimg.height()) * 0.1f;
+			for (int i = 0; i < 4; i++)
+			{
+				copyimg.drawLine(points[i].x, points[i].y, points[(i + 1) % 4].x, points[(i + 1) % 4].y, color, thicness);
+			}
+
+			// auto u = backend.proj->addLayerData<RasterLayer>();
+			// u->mat = copyimg;
+			// layersVals.addLayer<RasterGuiLayer, RasterLayer>("Test", u);
+
+			imwrite(path, copyimg);
+			// Remove filename from path
+			name = path.filename().string();
+			path = path.parent_path();
+			prefix.setText(path.string(), false);
+
+		}
+
+		BackString getPath() const
+		{
+			// return (BackPathStr(prefix.getText()) / name).string();
+			return prefix.getText() + "/" + name;
+		}
+
+		BackString getRstText() const
+		{
+			using namespace std::string_literals;
+			BackString text = ".. image:: "s + getPath();
+			text += "\n   :width: "s + std::to_string(width);
+			text += "\n   :alt: "s + altText.getText() + "\n"s;
+			return text;
+		}
+		// void genRandomName()
+		// {
+		// 	static const char* const vowels = "aeiouy";
+		// 	static const char* const consonants = "bcdfghjklmnpqrstvwxz";
+
+		// 	std::string name;
+		// 	name += consonants[rand() % strlen(consonants)];
+		// 	name += vowels[rand() % strlen(vowels)];
+		// 	name += consonants[rand() % strlen(consonants)];
+		// 	name += vowels[rand() % strlen(vowels)];
+		// 	name += consonants[rand() % strlen(consonants)];
+
+		// 	this->name.setText(name, true);
+		// }
+	};
+
+	ImageMeta imgMeta;
+
+	int sideWidth = 300;
 
 	void drawWorkout()
 	{
@@ -617,15 +746,24 @@ namespace MyApp
 		guiDisplay.drawPos = {0,0};
 		guiDisplay.drawSize = BackPoint(drawSize.x, drawSize.y);
 		guiDisplay.cursorPos = centerVals.resizble.currentPos;
+		bool selectToNetxTab = false;
 		if (centerVals.resizble.Begin("ImagePreview"))
 		{
 			layersVals.draw(guiDisplay);
 			if (centerVals.resizble.clicked)
 			{
 				layersVals.onClick(guiDisplay, centerVals.resizble.clickedPos);
+				if (allBarcodeDisaplyGuiLayer->selectedId != -1)
+				{
+					previewLayer->clear();
+					auto* prim = previewLayer->addPrimitive({ 0, 255, 0 });
+					*prim = *backend.vecLayer->primitives[allBarcodeDisaplyGuiLayer->selectedId];
+					previewGuiLayer->toGuiData();
+
+					selectToNetxTab = true;
+				}
 			}
 
-			// TiledRasterGuiLayer<RasterFromDiskLayer>* tlay = layersVals.getCastCurrentLayer<TiledRasterGuiLayer<RasterFromDiskLayer>>();
 			layersVals.drawOverlap(guiDisplay);
 		}
 
@@ -641,9 +779,79 @@ namespace MyApp
 		//ImGui::SetNextWindowViewport(viewport->ID);
 
 		window_flags = 0;//ImGuiWindowFlags_NoTitleBar;// | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_HorizontalScrollbar;
-		if (ImGui::BeginViewportSideBar("Sidebar", NULL, ImGuiDir_Right, 200, window_flags))
+		if (ImGui::BeginViewportSideBar("Sidebar", NULL, ImGuiDir_Right, sideWidth, window_flags))
 		{
 		// if (ImGui::Begin("Sidebar", NULL, window_flags))
+
+			// Draw 3 tabs
+			if (ImGui::BeginTabBar("MyTabBar"))
+			{
+				if (ImGui::BeginTabItem("Фильтр"))
+				{
+					allBarcodeDisaplyLayer->visible = true;
+					previewLayer->visible = false;
+
+					ImGui::Checkbox("Фильтровать", &filtered);
+					if (filtered && filter.draw())
+					{
+						auto* gfilter = filter.getFilter();
+						if (gfilter)
+						{
+							gfilter->imgLen = windowFrameLayer->mat.length();
+							for (size_t i = 0; i < backend.barlies.size(); i++)
+							{
+								allBarcodeDisaplyLayer->primitives[i]->visible = (gfilter->pass(&backend.barlies[i]));
+							}
+						}
+					}
+
+					ImGui::EndTabItem();
+				}
+
+				ImGui::BeginDisabled(previewLayer->primitives.size() == 0);
+				if (ImGui::BeginTabItem("Текст", nullptr, selectToNetxTab ? ImGuiTabItemFlags_SetSelected : 0))
+				{
+					ImGui::ColorPicker3("Цвет", imgMeta.hilightColor);
+
+					allBarcodeDisaplyLayer->visible = false;
+					previewLayer->visible = true;
+					assert(previewLayer->primitives.size() == 1);
+					previewLayer->primitives[0]->color.r = 255 * imgMeta.hilightColor[0];
+					previewLayer->primitives[0]->color.g = 255 * imgMeta.hilightColor[1];
+					previewLayer->primitives[0]->color.b = 255 * imgMeta.hilightColor[2];
+					// ImGui::InputText("Имя изображения", imgMeta.name.getBuffer(), 1000);
+					// ImGui::SameLine();
+					// if (ImGui::Button("Генерировать"))
+					// {
+					// 	imgMeta.genRandomName();
+					// }
+
+					if (ImGui::Button("Сохранить изображение"))
+					{
+						imgMeta.saveIamge(windowFrameLayer->mat);
+					}
+					// get path and pass it to prefix
+
+					if (ImGui::InputText("Префикс", imgMeta.prefix.getBuffer(), 1000))
+						imgMeta.prefix.markManualy();
+
+					ImGui::InputInt("Ширина", &width);
+					ImGui::InputTextMultiline("Альтернативный текст", imgMeta.altText.getBuffer(), 1000);
+
+
+					if (ImGui::Button("Скопировать текст"))
+					{
+						BackString outText;
+						outText = imgMeta.getRstText();
+						clip::set_text(outText);
+					}
+
+					ImGui::EndTabItem();
+				}
+				ImGui::EndDisabled();
+
+				ImGui::EndTabBar();
+			}
 
 			ImGui::End();
 		}
@@ -684,12 +892,12 @@ namespace MyApp
 	{
 		drawTopBar();
 		drawWorkout();
-		layersVals.drawLayersWindow();
+		// layersVals.drawLayersWindow();
 		// drawBottomBar();
 
 		commonValus.onAirC();
 
-		ImGui::ShowDemoWindow();
+		// ImGui::ShowDemoWindow();
 	}
 
 	constexpr ImVec2 toDVec2(const bc::point& p)
@@ -718,7 +926,10 @@ namespace MyApp
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 		//ImGui::StyleColorsLight();
+		ImGui::StyleColorsDark();
 		MyApp::setImGuiStyle(1.0);
+		prepare();
+
 
 		ImFontConfig font_config;
 		font_config.OversampleH = 1; //or 2 is the same
@@ -771,7 +982,6 @@ namespace MyApp
 		backend.getDS().sysProj.init(DEFAULT_PROJECTION);
 
 		LayerFactory::RegisterFactory<RasterGuiLayer, RasterLayer>(RASTER_LAYER_FID);
-		LayerFactory::RegisterFactory<RasterLineGuiLayer, RasterLineLayer>(RASTER_LINE_LAYER_FID);
 		LayerFactory::RegisterFactory<RasterFromDiskGuiLayer, RasterFromDiskLayer>(RASTER_DISK_LAYER_FID);
 		LayerFactory::RegisterFactory<VectorGuiLayer, VectorLayer>(VECTOR_LAYER_FID);
 		//classerVals.ioLayer = layersVals.getIoLayer();

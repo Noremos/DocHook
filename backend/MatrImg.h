@@ -692,6 +692,45 @@ public:
 
 		return r;
 	}
+
+	void drawLine(int x, int y, int endX, int endY, Barscalar color, int lineWidth = 4)
+	{
+		if (x == endX)
+			drawVerticalLine(x, y, endY, color);
+		else
+		{
+			assert(y == endY);
+			drawHorizontalLine(x, y, endX, color);
+		}
+	}
+
+	void drawHorizontalLine(int x, int y, int endX, Barscalar color, int lineWidth = 4)
+	{
+		if (x > endX)
+			std::swap(x, endX);
+		for (size_t h = std::max(y - lineWidth / 2, 0), end = std::min(y + lineWidth / 2, height()) ; h < end; h++)
+		{
+			for (size_t i = x; i < endX; i++)
+			{
+				set(i, h, color);
+			}
+		}
+
+	}
+
+	void drawVerticalLine(int x, int y, int endY, Barscalar color, int lineWidth = 4)
+	{
+		if (y > endY)
+			std::swap(y, endY);
+
+		for (size_t w = std::max(x - lineWidth / 2, 0), end = std::min(x + lineWidth / 2, width()) ; w < end; w++)
+		{
+			for (size_t i = y; i < endY; i++)
+			{
+				set(w, i, color);
+			}
+		}
+	}
 };
 
 

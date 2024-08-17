@@ -325,7 +325,7 @@ public:
 			auto mp = io.MousePos - win->Pos;
 			currentPos = pds.toSysGlob(BackPoint(mp.x, mp.y));
 
-			clicked = ImGui::IsMouseClicked(ImGuiMouseButton_Right);
+			clicked = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
 			if (clicked)
 			{
 				clickedPos = currentPos;

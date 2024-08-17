@@ -38,6 +38,7 @@ public:
 	int id;
 	BackColor color;
 	std::vector<BackPoint> points;
+	bool visible = true;
 
 	DrawPrimitive(int id, const BackColor& bp = BackColor()) : id(id), color(bp)
 	{ }

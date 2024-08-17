@@ -47,6 +47,9 @@ public:
 	virtual int getDeath() const = 0;
 	virtual Barscalar start() const = 0;
 	virtual Barscalar end() const = 0;
+	virtual int width() const = 0;
+	virtual int height() const = 0;
+
 	// virtual IClassItem* parent() const = 0;
 
 	virtual ~IClassItem()
@@ -299,9 +302,11 @@ MEXPORT struct RangeItemFilter : public IItemFilter
 	FRange start{ 0, 255 };
 	FRange len{ 0, 255 };
 	FRange matrSizeProc{ 0, 100 };
-	FRange depth{ 0, 1000 };
+	FRange depth{ 0, 40 };
+	FRange width{ 0, 2000 };
+	FRange height{ 0, 2000 };
 
-	int minPixelsSize = 0;
+	int minPixelsSize = 40;
 
 	bool pass(const IClassItem* line) const
 	{
@@ -311,7 +316,9 @@ MEXPORT struct RangeItemFilter : public IItemFilter
 			len.inRange(linlen) &&
 			matrSizeProc.inRange(matrSize * 100 / imgLen) &&
 			matrSize > minPixelsSize &&
-			depth.inRange(line->getDeath());
+			depth.inRange(line->getDeath()) &&
+			width.inRange(line->width()) &&
+			height.inRange(line->height());
 	}
 
 

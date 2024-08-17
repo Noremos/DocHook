@@ -104,10 +104,20 @@ if (BUILD_TEST)
     include(GoogleTest)
     gtest_discover_tests(${BTARGET})
 else()
+
+    # Disable clip examples and tests
+    set(CLIP_EXAMPLES OFF CACHE BOOL "Compile clip examples")
+    set(CLIP_TESTS OFF CACHE BOOL "Compile clip tests")
+    set(CLIP_ENABLE_IMAGE OFF CACHE BOOL "Compile clip image copt paste")
+
+    # In case that you have ${PNG_LIBRARY} set to support copy/paste images on Linux
+    #set(CLIP_X11_PNG_LIBRARY "${PNG_LIBRARY}")
+
+    # Add clip subdirectory to compile the library
+    add_subdirectory(side/clip)
+
     # Добавление исполняемого файла
     add_executable(${BTARGET} ${SOURCES} ${SIDE_SOURCES})
-
-
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(OUT_FOLTE "Debug")
@@ -164,3 +174,6 @@ target_link_libraries(${BTARGET} PRIVATE unofficial::sqlite3::sqlite3)
 
 find_package(GLEW REQUIRED)
 target_link_libraries(${BTARGET} PRIVATE GLEW::GLEW)
+
+# find_package(clip REQUIRED)
+target_link_libraries(${BTARGET} PRIVATE clip)

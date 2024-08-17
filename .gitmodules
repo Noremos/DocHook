@@ -16,3 +16,6 @@
 [submodule "side/glm"]
 	path = side/glm
 	url = git@github.com:g-truc/glm.git
+[submodule "side/clip"]
+	path = side/clip
+	url = https://github.com/dacap/clip.git

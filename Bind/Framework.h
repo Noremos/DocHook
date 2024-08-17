@@ -133,7 +133,7 @@ MEXPORT inline BackPathStr openProject()
 
 MEXPORT inline BackPathStr getSavePath(std::initializer_list<BackString> exts)
 {
-	auto fs = pfd::save_file("Choose file to save", pfd::path::home(), exts, pfd::opt::none);
+	auto fs = pfd::save_file("Выберите путь для сохранения", pfd::path::home(), exts, pfd::opt::none);
 
 	std::cout << "File path:" << " " + fs.result() << std::endl;
 

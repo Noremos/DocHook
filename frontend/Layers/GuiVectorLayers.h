@@ -1,4 +1,4 @@
-module;
+#pragma once
 #include "../DrawCommon.h"
 #include <vector>
 #include <numeric>
@@ -10,15 +10,13 @@ module;
 #include "../GuiWidgets.h"
 #include "../../backend/Layers/VectorLayers.h"
 
-export module GuiVectorLayers;
-//import BackBind;
 import GuiLayers;
 
 // import Platform;
 // import CSBind;
 
 // Vector layer
-export template<class T>
+template<class T>
 class VectorBaseLayer : public GuiLayerData<T>
 {
 	using Base = GuiLayerData<T>;
@@ -82,12 +80,36 @@ public:
 		orders.resize(Base::data->primitives.size());
 		std::iota(orders.begin(), orders.end(), 0);
 
+		std::vector<int> areas;
+		areas.reserve(orders.size());
+
+		for (const auto& prim : Base::data->primitives)
+		{
+			double area = 0;
+			for (size_t i = 0; i < prim->points.size(); i++)
+			{
+				const auto& p1 = prim->points[i];
+				const auto& p2 = prim->points[(i + 1) % prim->points.size()];
+				area += (p1.x * p2.y - p2.x * p1.y);
+			}
+			areas.push_back(area);
+		}
+
+
 		if (Base::data->vecType == VectorLayer::VecType::polygons)
 		{
-			std::sort(orders.begin(), orders.end(), [&](size_t a, size_t b) {
-				return Base::data->primitives[a]->points.size() < Base::data->primitives[b]->points.size();
+			std::sort(orders.begin(), orders.end(), [&](size_t a, size_t b)
+			{
+				return areas[a] < areas[b];
 			});
 		}
+
+		// if (Base::data->vecType == VectorLayer::VecType::polygons)
+		// {
+		// 	std::sort(orders.begin(), orders.end(), [&](size_t a, size_t b) {
+		// 		return Base::data->primitives[a]->points.size() < Base::data->primitives[b]->points.size();
+		// 	});
+		// }
 	}
 
 	virtual void draw(const GuiDisplaySystem& ds)
@@ -154,6 +176,9 @@ public:
 		int i = 0;
 		for (DrawPrimitive* d : prims)
 		{
+			if (!d->visible)
+				continue;
+
 			auto& points = d->points;
 			float tickness = spotId == i ? 3 : 10;
 
@@ -294,7 +319,7 @@ public:
 			}
 		}
 		displayPoints.clear();
-		return inside;
+		return pointsVisible >= 1 && inside;
 	}
 
 	int spotId = -1;
@@ -306,11 +331,18 @@ public:
 		ImU32 colbl = ImColor(255, 255, 255);
 
 		BackColor cscol = Base::data->color;
+		selectedId = -1;
 		for (size_t& io : orders)
 		{
 			const DrawPrimitive* d = Base::data->primitives[io];
+			if (!d->visible)
+				continue;
+
 			if (drawPolygon(d, ds, io == spotId ? 10.0 : 3.0))
-				selectedId = io;
+			{
+				if (selectedId == -1)
+					selectedId = io;
+			}
 		}
 	}
 
@@ -328,6 +360,9 @@ public:
 		BackColor cscol = Base::data->color;
 		for (const DrawPrimitive* d : Base::data->primitives)
 		{
+			if (!d->visible)
+				continue;
+
 			const std::vector<BackPoint>& points = d->points;
 			if (points.size() == 0)
 				return;
@@ -441,7 +476,7 @@ public:
 
 
 
-export class VectorGuiLayer : public VectorBaseLayer<VectorLayer>
+class VectorGuiLayer : public VectorBaseLayer<VectorLayer>
 {
 public:
 	VectorGuiLayer(VectorLayer* fromCore) : VectorBaseLayer<VectorLayer>(fromCore)
