@@ -35,20 +35,7 @@ struct GuiFilter
 
 	IItemFilter* getFilter()
 	{
-		int id = typeCB.currentValue();
-		switch (id)
-		{
-		case 0:
-			return nullptr;
-		case 1:
-			return &valsFilter;
-		//case 2:
-		//{
-		//	scriptFilter.setScript(text);
-		//	return &scriptFilter;
-		//}
-		}
-		return nullptr;
+		return &valsFilter;
 	}
 
 	bool draw()
