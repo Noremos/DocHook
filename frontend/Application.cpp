@@ -425,7 +425,7 @@ namespace MyApp
 
 			ImGui::SetItemDefaultFocus();
 			ImGui::SameLine();
-			if (ImGui::Button(BU8("Cancel"), ImVec2(120, 0)))
+			if (ImGui::Button(BU8("Отмена"), ImVec2(120, 0)))
 			{
 				ImGui::CloseCurrentPopup();
 			}
@@ -543,7 +543,7 @@ namespace MyApp
 
 			ImGui::SetItemDefaultFocus();
 			ImGui::SameLine();
-			if (ImGui::Button(BU8("Cancel"), ImVec2(120, 0)))
+			if (ImGui::Button(BU8("Отмена"), ImVec2(120, 0)))
 			{
 				ImGui::CloseCurrentPopup();
 			}
@@ -661,14 +661,17 @@ namespace MyApp
 		{
 			BackPathStr path = getSavePath({ "Image Files", "*.png *.jpg *.jpeg *.bmp"});
 
-			auto* convPrim = previewLayer->primitives[0];
-			auto& points = convPrim->points;
 			BackImage copyimg = img;
-			Barscalar color(convPrim->color.r, convPrim->color.g, convPrim->color.b);
-			const int thicness = std::max(copyimg.width(), copyimg.height()) * 0.1f;
-			for (int i = 0; i < 4; i++)
+			if (previewLayer->primitives.size() > 0)
 			{
-				copyimg.drawLine(points[i].x, points[i].y, points[(i + 1) % 4].x, points[(i + 1) % 4].y, color, thicness);
+				auto* convPrim = previewLayer->primitives[0];
+				auto& points = convPrim->points;
+				Barscalar color(convPrim->color.r, convPrim->color.g, convPrim->color.b);
+				const int thicness = std::max(copyimg.width(), copyimg.height()) * 0.1f;
+				for (int i = 0; i < 4; i++)
+				{
+					copyimg.drawLine(points[i].x, points[i].y, points[(i + 1) % 4].x, points[(i + 1) % 4].y, color, thicness);
+				}
 			}
 
 			// auto u = backend.proj->addLayerData<RasterLayer>();
@@ -802,28 +805,36 @@ namespace MyApp
 					ImGui::EndTabItem();
 				}
 
-				ImGui::BeginDisabled(previewLayer->primitives.size() == 0);
 				if (ImGui::BeginTabItem("Текст", nullptr, selectToNetxTab ? ImGuiTabItemFlags_SetSelected : 0))
 				{
+					ImGui::BeginDisabled(previewLayer->primitives.size() == 0);
 					ImGui::ColorPicker3("Цвет", imgMeta.hilightColor);
+					if (previewLayer->primitives.size() == 1)
+					{
+						previewLayer->primitives[0]->color.r = 255 * imgMeta.hilightColor[0];
+						previewLayer->primitives[0]->color.g = 255 * imgMeta.hilightColor[1];
+						previewLayer->primitives[0]->color.b = 255 * imgMeta.hilightColor[2];
+					}
 
 					allBarcodeDisaplyLayer->visible = false;
 					previewLayer->visible = true;
-					assert(previewLayer->primitives.size() == 1);
-					previewLayer->primitives[0]->color.r = 255 * imgMeta.hilightColor[0];
-					previewLayer->primitives[0]->color.g = 255 * imgMeta.hilightColor[1];
-					previewLayer->primitives[0]->color.b = 255 * imgMeta.hilightColor[2];
+					ImGui::EndDisabled();
 					// ImGui::InputText("Имя изображения", imgMeta.name.getBuffer(), 1000);
 					// ImGui::SameLine();
-					// if (ImGui::Button("Генерировать"))
-					// {
-					// 	imgMeta.genRandomName();
-					// }
+					if (previewLayer->primitives.size() == 1)
+					{
+						if (ImGui::Button("Снять выделение"))
+						{
+							previewLayer->primitives.clear();
+						}
+					}
 
 					if (ImGui::Button("Сохранить изображение"))
 					{
 						imgMeta.saveIamge(windowFrameLayer->mat);
 					}
+
+					ImGui::Separator();
 					// get path and pass it to prefix
 
 					if (ImGui::InputText("Префикс", imgMeta.prefix.getBuffer(), 1000))
@@ -842,7 +853,6 @@ namespace MyApp
 
 					ImGui::EndTabItem();
 				}
-				ImGui::EndDisabled();
 
 				ImGui::EndTabBar();
 			}
