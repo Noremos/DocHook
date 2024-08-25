@@ -42,8 +42,8 @@ struct GuiFilter
 	{
 		changed = false;
 		ImGui::Text("Пороги отсеивания");
-		// _drawPair("Мин. Начало", "Макс. Начало", valsFilter.start);
-		// _drawPair("Мин. Длина", "Макс. Длина", valsFilter.len);
+		_drawPair("Мин. Начало", "Макс. Начало", valsFilter.start);
+		_drawPair("Мин. Длина", "Макс. Длина", valsFilter.len);
 		_drawPair("Мин. размер в %", "Макс. размер %", valsFilter.matrSizeProc, 100);
 		_drawPair("Мин. Глубина", "Макс. Глубина", valsFilter.depth, 30);
 		_drawPair("Мин. Ширина", "Макс. Ширина", valsFilter.width, 2000);
