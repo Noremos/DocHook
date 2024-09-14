@@ -660,6 +660,8 @@ namespace MyApp
 		void saveIamge(const BackImage& img)
 		{
 			BackPathStr path = getSavePath({ "Image Files", "*.png *.jpg *.jpeg *.bmp"});
+			if (path.empty())
+				return;
 
 			BackImage copyimg = img;
 			if (previewLayer->primitives.size() > 0)
@@ -672,6 +674,35 @@ namespace MyApp
 				{
 					copyimg.drawLine(points[i].x, points[i].y, points[(i + 1) % 4].x, points[(i + 1) % 4].y, color, thicness);
 				}
+			}
+
+			// auto u = backend.proj->addLayerData<RasterLayer>();
+			// u->mat = copyimg;
+			// layersVals.addLayer<RasterGuiLayer, RasterLayer>("Test", u);
+
+			imwrite(path, copyimg);
+			// Remove filename from path
+			name = path.filename().string();
+			path = path.parent_path();
+			prefix.setText(path.string(), false);
+
+		}
+
+
+		void savePart(const BackImage& img)
+		{
+			BackPathStr path = getSavePath({ "Image Files", "*.png *.jpg *.jpeg *.bmp"});
+			if (path.empty())
+				return;
+
+			BackImage copyimg = img;
+			if (previewLayer->primitives.size() > 0)
+			{
+				auto* convPrim = previewLayer->primitives[0];
+				auto& points = convPrim->points;
+				Barscalar color(convPrim->color.r, convPrim->color.g, convPrim->color.b);
+
+				copyimg = img.getRect(points[0].x, points[0].y, points[1].x - points[0].x, points[3].y - points[0].y);
 			}
 
 			// auto u = backend.proj->addLayerData<RasterLayer>();
@@ -717,8 +748,70 @@ namespace MyApp
 	};
 
 	ImageMeta imgMeta;
-
 	int sideWidth = 300;
+
+	class TextTemplate
+	{
+	public:
+		std::vector<BackString> templates;
+
+		TextTemplate()
+		{
+			templates.push_back(getRstTemplate());
+			templates.push_back(getLaTexTemplate());
+		}
+
+		static BackString getRstTemplate()
+		{
+			using namespace std::string_literals;
+			BackString text =
+".. image:: <path>\n"s
+"   :width: <width>\n"s
+"   :alt: <text>\n"s;
+			return text;
+		}
+		static BackString getLaTexTemplate()
+		{
+			using namespace std::string_literals;
+			BackString text =
+			"\begin{figure}[h]\n"s
+			"   \\centering\n"s
+			"   \\includegraphics[width=<width>\\textwidth]{<path>}\n"s
+			"   \\caption{<text>}\n"
+			"   \\label{fig:YourLabel}\n"s
+			"\\end{figure}"s;
+			return text;
+		}
+
+
+		bool replace(std::string& str, const std::string& from, const std::string& to)
+		{
+			size_t start_pos = str.find(from);
+			if(start_pos == std::string::npos)
+				return false;
+			str.replace(start_pos, from.length(), to);
+			return true;
+		}
+
+
+	public:
+		BackString getPreparedString(int id)
+		{
+			BackString ttemplate = templates[id];
+
+			replace(ttemplate, "<path>", imgMeta.getPath());
+			replace(ttemplate, "<text>", imgMeta.altText.getText());
+			replace(ttemplate, "<width>", std::to_string(width));
+
+			return ttemplate;
+		}
+
+	};
+
+
+	TextTemplate templ;
+	SelectableKeyValues<int> templCombo({{0, "RST"}, {0, "LaTeX"}});
+	BufferText templateTemplate;
 
 	void drawWorkout()
 	{
@@ -805,7 +898,7 @@ namespace MyApp
 					ImGui::EndTabItem();
 				}
 
-				if (ImGui::BeginTabItem("Текст", nullptr, selectToNetxTab ? ImGuiTabItemFlags_SetSelected : 0))
+				if (ImGui::BeginTabItem("Вывод", nullptr, selectToNetxTab ? ImGuiTabItemFlags_SetSelected : 0))
 				{
 					ImGui::BeginDisabled(previewLayer->primitives.size() == 0);
 					ImGui::ColorPicker3("Цвет", imgMeta.hilightColor);
@@ -829,13 +922,51 @@ namespace MyApp
 						}
 					}
 
-					if (ImGui::Button("Сохранить изображение"))
+					ImGui::LabelText("##Save", "Сохранить");
+					if (ImGui::Button("Изображение"))
 					{
 						imgMeta.saveIamge(windowFrameLayer->mat);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Выделенное"))
+					{
+						imgMeta.savePart(windowFrameLayer->mat);
 					}
 
 					ImGui::Separator();
 					// get path and pass it to prefix
+
+
+
+					templCombo.drawCombobox("Шаблон", 100);
+					ImGui::SameLine();
+					if (ImGui::Button("Изменить"))
+					{
+						// open popup
+						ImGui::OpenPopup("EditAltText");
+						templateTemplate.setText(templ.templates[templCombo.currentIndex], false);
+					}
+
+					if (ImGui::BeginPopupModal("EditAltText", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+					{
+						if (ImGui::Button("Добавить шаблон"))
+						{
+							templ.templates.emplace_back() = templ.templates[templCombo.currentIndex];
+							templateTemplate.setText(templ.templates.back(), false);
+
+							templCombo.add("User Defined", templ.templates.size() - 1);
+							templCombo.endAdding();
+						}
+
+						ImGui::InputTextMultiline("Альтернативный текст", templateTemplate.getBuffer(), 1000);
+
+						if (ImGui::Button("Закрыть"))
+						{
+							ImGui::CloseCurrentPopup();
+						}
+						ImGui::EndPopup();
+					}
+
 
 					if (ImGui::InputText("Префикс", imgMeta.prefix.getBuffer(), 1000))
 						imgMeta.prefix.markManualy();
@@ -847,7 +978,7 @@ namespace MyApp
 					if (ImGui::Button("Скопировать текст"))
 					{
 						BackString outText;
-						outText = imgMeta.getRstText();
+						outText = templ.getPreparedString(templCombo.currentIndex);
 						clip::set_text(outText);
 					}
 

@@ -51,12 +51,14 @@ struct SelectableKeyValues
 	{
 		size = l.size();
 		items.resize(size);
+		holder.resize(size);
 		values.resize(size);
 		int counter = 0;
 		for (const auto& kv : l)
 		{
 			values[counter] = kv.first;
-			items[counter] = kv.second;
+			holder[counter] = kv.second;
+			items[counter] = holder[counter].data();
 			++counter;
 		}
 	}
