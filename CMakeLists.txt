@@ -37,24 +37,6 @@ set(SIDE_SOURCES
     side/barcode/PrjBarlib/modules/tiffreader.cpp
 )
 
-
-file(GLOB_RECURSE SOURCES_MODULES
-    "Bind/*.ixx"
-    "frontend/*.ixx"
-    "backend/*.ixx"
-    # "side/Barcode/PrjBarlib/modules/*.ixx"
-    # "side/Barcode/PrjBarlib/modules/StateBinFile.ixx"
-    # "side/Barcode/PrjBarlib/modules/TiffReader.ixx"
-)
-
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Algs/CachedBarcodeAlg\\.ixx$")
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Interfaces/IAlg\\.ixx$")
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Layers/SimpleLineDisplay\\.ixx$")
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*backend/Layers/SimpleLineDisplay\\.ixx$")
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*side/Barcode/PrjBarlib/modules/BinStateFileWrapper\\.ixx$")
-list(FILTER SOURCES_MODULES EXCLUDE REGEX ".*side/Barcode/PrjBarlib/modules/ImageReader\\.ixx$")
-
-
 # add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 
 include_directories(
@@ -66,7 +48,6 @@ include_directories(
 
 # Настройка конфигураций
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
-set(CXX_SCAN_FOR_MODULES TRUE)
 
 if (BUILD_TEST)
     enable_testing()
@@ -136,11 +117,6 @@ else()
     file(COPY ${RES_FILES} DESTINATION ${CMAKE_BINARY_DIR}/../../${OUT_FOLTE}/)
 endif()
 
-target_sources(${BTARGET}
-    PUBLIC
-    FILE_SET all_my_modules TYPE CXX_MODULES FILES
-    ${SOURCES_MODULES}
-)
 
 # this is heuristically generated, and may not be correct
 find_package(glfw3 CONFIG REQUIRED)

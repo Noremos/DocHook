@@ -15,11 +15,12 @@
 #include "../../backend/Layers/VectorLayers.h"
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
+#include "../GuiOverlap.h"
 
 // import LayersCore;
 // import RasterLayers;
 // import BarcodeModule;
-import GuiOverlap;
+// import GuiOverlap;
 // import CSBind;
 // import Platform;
 //import BackBind;

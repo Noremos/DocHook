@@ -1,4 +1,5 @@
-module;
+// module;
+#pragma once
 #include "../DrawCommon.h"
 
 #include <numeric>
@@ -14,13 +15,14 @@ module;
 #include "../../backend/Layers/VectorLayers.h"
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
+#include "../GuiOverlap.h"
 
-export module GuiLayers;
+// module GuiLayers;
 
 // import LayersCore;
 // import RasterLayers;
 // import BarcodeModule;
-import GuiOverlap;
+// import GuiOverlap;
 // import CSBind;
 // import Platform;
 //import BackBind;
@@ -29,7 +31,7 @@ import GuiOverlap;
 
 //GuiBackend backend;
 
-export class LayersVals : public ILayerWorker
+class LayersVals : public ILayerWorker
 {
 public:
 

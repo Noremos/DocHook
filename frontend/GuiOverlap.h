@@ -1,4 +1,5 @@
-module;
+
+#pragma once
 #include <cmath>
 #include "DrawCommon.h"
 #include "Barcode/PrjBarlib/include/barscalar.h"
@@ -6,7 +7,7 @@ module;
 #include "../backend/MatrImg.h"
 #include "../backend/Layers/layerInterface.h"
 #include "GuiWidgets.h"
-export module GuiOverlap;
+// module GuiOverlap;
 
 //import BackBind;
 // import MatrModule;
@@ -59,7 +60,7 @@ struct vec3
 };
 
 
-export class IOverlapProcess
+class IOverlapProcess
 {
 public:
 	bool enable = true;
@@ -67,7 +68,7 @@ public:
 	virtual void draw(ImVec2 pos, ImVec2 size) = 0;
 };
 
-export class HeimapOverlap : public IOverlapProcess
+class HeimapOverlap : public IOverlapProcess
 {
 	GuiDrawImage heimap;
 	bool inited = false;
@@ -114,7 +115,7 @@ public:
 };
 
 
-export class TilemapOverlap : public IOverlapProcess
+class TilemapOverlap : public IOverlapProcess
 {
 	GuiDrawImage* img;
 	const LayerProvider* lprov;

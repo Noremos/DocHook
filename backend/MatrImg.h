@@ -731,6 +731,18 @@ public:
 			}
 		}
 	}
+
+	BackImage getChannel(int channel) const
+	{
+		assert(channels() > channel);
+		BackImage cpty(width(), height(), 1, BarType::BYTE8_1);
+		for (size_t i = 0, total = length(); i < total; i++)
+		{
+			cpty.setLiner(i, getLiner(i)[channel]);
+		}
+
+		return cpty;
+	}
 };
 
 

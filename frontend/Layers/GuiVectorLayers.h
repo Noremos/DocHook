@@ -9,8 +9,9 @@
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
 #include "../../backend/Layers/VectorLayers.h"
+#include "GuiLayerVals.h"
 
-import GuiLayers;
+// import GuiLayers;
 
 // import Platform;
 // import CSBind;

@@ -11,12 +11,14 @@
 #include "../Templates/GuiRasterTools.h"
 #include "IGuiLayer.h"
 #include "../GuiWidgets.h"
+#include "../GuiOverlap.h"
+#include "GuiLayerVals.h"
 
 //import BackBind;
 // import IItemModule;
 // import RasterLayers;
-import GuiLayers;
-import GuiOverlap;
+// import GuiLayers;
+// import GuiOverlap;
 // import Platform
 // import LayersCore;
 

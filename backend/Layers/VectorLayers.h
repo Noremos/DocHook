@@ -159,8 +159,6 @@ public:
 
 class VectorLayer : public IVectorLayer
 {
-	int binId = -1;
-
 public:
 	enum class VecType : short
 	{

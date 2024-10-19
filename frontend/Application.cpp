@@ -24,11 +24,14 @@
 #include "../side/clip/clip.h"
 #include "Layers/GuiVectorLayers.h"
 #include "../backend/CachedBarcode.h"
+#include "GuiOverlap.h"
+#include "Layers/GuiLayerVals.h"
+#include "GuiBlock.h"
 
 // import Platform;
-import GuiLayers;
+// import GuiLayers;
 // import BarcodeModule;
-import GuiOverlap;
+// import GuiOverlap;
 
 
 // import ProjectSettings;
@@ -37,7 +40,7 @@ import GuiOverlap;
 
 // import RasterLayers;
 // import LayersCore;
-import GuiBlock;
+// import GuiBlock;
 //import Lua;
 
 
@@ -96,7 +99,7 @@ public:
 	void process(BackImage& img, VectorLayer* vec, bc::barstruct& constr, IItemFilter* filter)
 	{
 		// constr.proctype = bc::ProcType::f0t255;
-		bc::BarcodeCreator creator;
+
 		std::unique_ptr<bc::Baritem> citem(bc::BarcodeCreator::create(img, constr));
 
 		bc::Baritem* item = citem.get();
@@ -240,6 +243,134 @@ private:
 int GuiBackend::opens = 0;
 
 GuiBackend backend;
+
+void edu()
+{
+	bc::barstruct constr;
+	constr.proctype = bc::ProcType::Radius;
+
+	namespace fs = std::filesystem;
+
+	std::string dir = "/Users/sam/Edu/papers/DocHook2024/tests/images/boost/";
+	// for (const auto & entry : fs::directory_iterator(path))
+	for (size_t i = 1; i <= 3; i++)
+	{
+		std::string pathSource = dir + std::to_string(i) + ".png";
+		std::string pathTemplate = dir + std::to_string(i) + "t.png";
+
+		BackImage imgSource = imread(pathSource);
+		BackImage imgTemplate = imread(pathTemplate);
+
+
+
+
+		// greenSide
+		// BackImage red = imgTemplate.getChannel(0);
+		// std::unique_ptr<bc::Baritem> redItem(bc::BarcodeCreator::create(imgTemplate, constr));
+
+		std::vector<std::pair<bc::BarRect, bool>> activeElements;
+		BackImage green = imgTemplate.getChannel(1);
+		std::unique_ptr<bc::Baritem> greenItem(bc::BarcodeCreator::create(imgTemplate, constr));
+
+		for (int i = 0, total = greenItem->barlines.size(); i < total; i++)
+		{
+			bc::barline* line = greenItem->barlines[i];
+
+			if (line->matr.size() < 40)
+				continue;
+
+			auto rect = line->getBarRect();
+			activeElements.push_back({rect, false});
+		}
+
+		// BackImage blue = imgTemplate.getChannel(2);
+		// std::unique_ptr<bc::Baritem> blueItem(bc::BarcodeCreator::create(imgTemplate, constr));
+
+
+		// Side
+		std::unique_ptr<bc::Baritem> citem(bc::BarcodeCreator::create(imgSource, constr));
+
+
+		int truePositive = 0;
+		int noise = 0;
+		int falsePositive = 0;
+
+		bool found = true;
+		bc::Baritem* item = citem.get();
+		int size = (int)item->barlines.size();
+		for (int i = 0; i < size; i++)
+		{
+			bc::barline* line = item->barlines[i];
+
+			if (line->matr.size() < 40)
+				continue;
+
+			int l, r, t, d;
+			r = l = line->matr[0].getX();
+			t = d = line->matr[0].getY();
+
+			bool needSkip = true;
+			bool equalsToBlue = true;
+			for(auto& val : line->matr)
+			{
+				if (l > val.getX())
+					l = val.getX();
+				if (r < val.getX())
+					r = val.getX();
+
+				if (t > val.getY())
+					t = val.getY();
+				if (d < val.getY())
+					d = val.getY();
+
+				auto templScalr = imgTemplate.get(val.getX(), val.getY());
+				if (templScalr[0] != 255)
+				{
+					needSkip = false;
+				}
+				if (templScalr[2] != 255)
+				{
+					equalsToBlue = false;
+				}
+
+			}
+
+			if (needSkip)
+				continue;
+
+			bool dounf = false;
+			bc::BarRect current(l, t, r - l + 1, d - t + 1);
+			for (auto &element : activeElements)
+			{
+				if (element.first.isItemInside(current))
+				{
+					dounf = true;
+
+					if (element.second)
+					{
+						++noise;
+						break;
+					}
+
+					++truePositive;
+					element.second = true;
+					break;
+				}
+			}
+
+			if (!dounf)
+			{
+				++falsePositive;
+			}
+
+		}
+
+		std::cout << pathSource << std::endl;
+		std::cout << truePositive << " " << noise << " " << falsePositive << std::endl;
+	}
+
+}
+
 
 namespace MyApp
 {
@@ -1042,6 +1173,8 @@ namespace MyApp
 
 	void Init(const char* root)
 	{
+		// ::edu();
+		// exit(0);
 		srand(time(NULL));
 		Variables::setRoot(root);
 

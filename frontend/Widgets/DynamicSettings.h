@@ -1,17 +1,18 @@
-module;
+// module;
+#pragma once
 #include "../DrawCommon.h"
 
 #include "../../backend/Core/RefSettings.h"
 #include "../../backend/MLSettings.h"
 #include "../Bind/Framework.h"
-export module DynamicSettings;
+// export module DynamicSettings;
 
 // import MLSettings;
 //import BackBind;
 // import RefSettings;
 // import Platform;
 
-static int MyResizeCallback(ImGuiInputTextCallbackData* data)
+inline int MyResizeCallback(ImGuiInputTextCallbackData* data)
 {
 	if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 	{
@@ -25,13 +26,13 @@ static int MyResizeCallback(ImGuiInputTextCallbackData* data)
 
 // Note: Because ImGui:: is a namespace you would typically add your own function into the namespace.
 // For example, you code may declare a function 'ImGui::InputText(const char* label, MyString* my_str)'
-bool MyInputText(const char* label, BackString* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
+inline bool MyInputText(const char* label, BackString* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
 {
 	IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
 	return ImGui::InputText(label, (char*)my_str->c_str(), my_str->length(), flags | ImGuiInputTextFlags_CallbackResize, MyResizeCallback, (void*)my_str);
 }
 
-export void drawDynamicSettings(MLSettings& settings)
+inline void drawDynamicSettings(MLSettings& settings)
 {
 	for (size_t i = 0; i < settings.values.size(); i++)
 	{
@@ -75,7 +76,7 @@ export void drawDynamicSettings(MLSettings& settings)
 }
 
 
-export void drawDynamicRefSettings(RefSettings& settings)
+inline void drawDynamicRefSettings(RefSettings& settings)
 {
 	for (size_t i = 0; i < settings.values.size(); i++)
 	{

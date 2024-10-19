@@ -11,12 +11,15 @@
 #include "../Layers/IGuiLayer.h"
 #include "../GuiWidgets.h"
 #include "../Widgets/GuiFilter.h"
+#include "../Widgets/DynamicSettings.h"
+#include "../GuiOverlap.h"
+#include "../Layers/GuiLayerVals.h"
 
 //import BackBind;
 // import RasterLayers;
-import GuiLayers;
-import GuiOverlap;
-import DynamicSettings;
+// import GuiLayers;
+// import GuiOverlap;
+// import DynamicSettings;
 
 // import LayersCore;
 

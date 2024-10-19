@@ -1,4 +1,5 @@
-module;
+// module;
+#pragma once
 #include <algorithm>
 #include "DrawCommon.h"
 #include "../backend/Interfaces/IBlock.h"
@@ -8,8 +9,9 @@ module;
 #include "../Bind/Framework.h"
 #include "Layers/IGuiLayer.h"
 #include "GuiWidgets.h"
+#include "Widgets/DynamicSettings.h"
 
-export module GuiBlock;
+// module GuiBlock;
 
 //import BackBind;
 // import MatrModule;
@@ -17,9 +19,8 @@ export module GuiBlock;
 // import Platform;
 // import IBlock;
 
-import DynamicSettings;
 
-export class GuiBlock
+class GuiBlock
 {
 public:
 	bool show = false;
