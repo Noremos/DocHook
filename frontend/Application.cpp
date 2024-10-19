@@ -581,6 +581,9 @@ namespace MyApp
 
 		backend.createCacheBarcode2(inLayer, barset);
 		allBarcodeDisaplyGuiLayer->toGuiData();
+
+		previewLayer->clear();
+		allBarcodeDisaplyGuiLayer->selectedId = -1;
 	}
 
 	int width = 0;
@@ -1049,7 +1052,8 @@ namespace MyApp
 					{
 						if (ImGui::Button("Снять выделение"))
 						{
-							previewLayer->primitives.clear();
+							previewLayer->clear();
+							allBarcodeDisaplyGuiLayer->selectedId = -1;
 						}
 					}
 
