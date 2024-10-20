@@ -3,9 +3,16 @@
 #include <vector>
 
 #ifdef _WIN32
-#include <Windows.h>
-#include <dwmapi.h>
-#pragma comment(lib, "Dwmapi.lib")
+//#include <dwmapi.h>
+
+
+#include <windows.h>
+#include <string>
+#include <iostream>
+#include <cassert>
+#include <codecvt>
+
+//#pragma comment(lib, "Dwmapi.lib")
 #elif __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
 #elif __linux__
@@ -13,6 +20,7 @@
 #include <X11/Xutil.h>
 #endif
 #include "imgui.h"
+
 
 // #include <ScreenCaptureKit/ScreenCaptureKit.h>
 // #include <CoreGraphics/CoreGraphics.h>
@@ -247,8 +255,177 @@ std::vector<ImageData> getWindowsPreview()
 	return out;
 }
 #else
+
+struct CGRect {
+    struct {
+        long x;
+        long y;
+    } origin;
+    struct {
+        long width;
+        long height;
+    } size;
+};
+
+// Function to get the window bounds in a format similar to CGRect
+CGRect getWindowBounds(HWND hwnd) {
+    CGRect windowBounds;
+    RECT rect;
+
+    // Get the window rectangle (bounding rectangle)
+    if (GetWindowRect(hwnd, &rect)) {
+        windowBounds.origin.x = rect.left;
+        windowBounds.origin.y = rect.top;
+        windowBounds.size.width = rect.right - rect.left;
+        windowBounds.size.height = rect.bottom - rect.top;
+    } else {
+        // Handle error; you might want to initialize to zero or some default values
+        windowBounds.origin.x = 0;
+        windowBounds.origin.y = 0;
+        windowBounds.size.width = 0;
+        windowBounds.size.height = 0;
+    }
+
+    return windowBounds;
+}
+
+bool notFullWindow(HWND hwnd) {
+    // Get the window title
+	int length = GetWindowTextLength(hwnd);
+	
+	// Get the window style
+	LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
+
+	// Check if the window is minimized
+	if (style & WS_MINIMIZE)
+		return true;
+
+
+	if (IsWindowVisible(hwnd) && length != 0)
+	{
+		//const DWORD TITLE_SIZE = 1024;
+		//WCHAR windowTitle[TITLE_SIZE];
+		//GetWindowTextW(hwnd, windowTitle, length + 1);
+		//std::wstring title(&windowTitle[0]);
+		//std::wstring str = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(title.data());
+
+
+		//std::cout << hwnd << ":  " << str << std::endl;
+		return false;
+	}
+
+
+    return true; // Indicates it's not a full window if it passes the above checks
+}
+
+
+
+// Function to get window metadata
+std::string getWindowMeta(ImageData& data, HWND hwnd) {
+    // Get the window title
+
+
+	int length = GetWindowTextLength(hwnd);
+
+	//std::wstring str = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(title.data());
+
+	const DWORD TITLE_SIZE = 1024;
+	WCHAR windowTitle[TITLE_SIZE];
+	GetWindowTextW(hwnd, windowTitle, length + 1);
+	std::wstring title(&windowTitle[0]);
+
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> conversion;
+	std::u16string str16((char16_t*)title.data());
+
+
+    // Name
+	data.name = conversion.to_bytes(str16.data());
+	if (data.name.length() > 21)
+		data.name = data.name.substr(0, 8) + "..." + data.name.substr(data.name.length() - 10);
+
+    // Window ID
+    data.winId = GetWindowThreadProcessId(hwnd, nullptr);
+
+    return data.name;
+}
+
+// Function to capture the window image in Windows
+void CaptureWindowWin(ImageData& imgData, HWND hwnd) {
+    // Get window rectangle
+    RECT windowRect;
+    GetWindowRect(hwnd, &windowRect);
+
+    // Calculate width and height
+    imgData.width = windowRect.right - windowRect.left;
+    imgData.height = windowRect.bottom - windowRect.top;
+
+    // Create a device context for the window
+    HDC hdc = GetDC(hwnd);
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, imgData.width, imgData.height);
+
+    SelectObject(hdcMem, hBitmap);
+
+    // Render the window into the memory device context
+    BitBlt(hdcMem, 0, 0, imgData.width, imgData.height, hdc, 0, 0, SRCCOPY);
+
+    // Clean up the device context
+    ReleaseDC(hwnd, hdc);
+
+    // Allocate and copy image data to imgData.data
+    BITMAP bitmap;
+    GetObject(hBitmap, sizeof(bitmap), &bitmap);
+
+    // Assuming a 32-bit bitmap (you can adjust based on your needs)
+    imgData.channels = bitmap.bmBitsPixel / 8; // RGBA
+    imgData.data.reset(new char[bitmap.bmWidthBytes * bitmap.bmHeight]); // allocate enough for the data
+    GetBitmapBits(hBitmap, bitmap.bmWidthBytes * bitmap.bmHeight, imgData.data.get());
+
+    // Cleanup
+    DeleteObject(hBitmap);
+    DeleteDC(hdcMem);
+
+    // Set width according to bitmap
+    imgData.width = bitmap.bmWidth;
+    imgData.height = bitmap.bmHeight;
+}
+
 std::vector<ImageData> getWindowsPreview()
 {
-	return {};
+    std::vector<ImageData> out;
+
+    // Enumerate all top-level windows
+    EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL {
+        std::vector<ImageData>& images = *reinterpret_cast<std::vector<ImageData>*>(lParam);
+
+        // Skip minimized or hidden windows
+        if (notFullWindow(hwnd)) {
+            return TRUE; // Continue enumeration
+        }
+
+
+        ImageData imgData;
+
+        // Get window metadata
+        getWindowMeta(imgData, hwnd);
+
+		// Skip dublicates
+		for (size_t i = 0; i < images.size(); i++)
+		{
+			if (images[i].winId == imgData.winId)
+				return TRUE;
+		}
+
+        // Capture window image
+        CaptureWindowWin(imgData, hwnd);
+
+       
+        images.push_back(std::move(imgData));
+
+        return TRUE; // Continue enumeration
+    }, reinterpret_cast<LPARAM>(&out));
+
+    return out;
 }
+
 #endif
