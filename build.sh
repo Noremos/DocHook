@@ -46,7 +46,7 @@ if [ "${build_type}" = "Tests" ]; then
 fi
 
 echo Done
-# cmake -B Build -S . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+# cmake -B Build -S . -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Debug -DBUILD_TEST:BOOL=false
 # cmake --build Build
 
 

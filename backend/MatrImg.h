@@ -301,7 +301,7 @@ public:
 		cachedMin.set(_min);
 	}
 
-	Barscalar max() const
+	Barscalar (max)() const
 	{
 		if (cachedMax.isCached)
 			return cachedMax.val;
@@ -318,7 +318,7 @@ public:
 		return _max;
 	}
 
-	Barscalar min() const
+	Barscalar (min)() const
 	{
 		if (cachedMin.isCached)
 			return cachedMin.val;
@@ -651,7 +651,7 @@ public:
 				int x_floor = (int)std::floor(x * x_ratio);
 				int y_floor = (int)std::floor(y * y_ratio);
 				// int x_ceil = std::min(x_floor + 1, width() - 1);
-				int y_ceil = std::min(y_floor + 1, height() - 1);
+				int y_ceil = (std::min)(y_floor + 1, height() - 1);
 				float x_weight = x * x_ratio - x_floor;
 				float y_weight = y * y_ratio - y_floor;
 
@@ -708,7 +708,7 @@ public:
 	{
 		if (x > endX)
 			std::swap(x, endX);
-		for (size_t h = std::max(y - lineWidth / 2, 0), end = std::min(y + lineWidth / 2, height()) ; h < end; h++)
+		for (size_t h = (std::max)(y - lineWidth / 2, 0), end = (std::min)(y + lineWidth / 2, height()) ; h < end; h++)
 		{
 			for (size_t i = x; i < endX; i++)
 			{
@@ -723,7 +723,7 @@ public:
 		if (y > endY)
 			std::swap(y, endY);
 
-		for (size_t w = std::max(x - lineWidth / 2, 0), end = std::min(x + lineWidth / 2, width()) ; w < end; w++)
+		for (size_t w = (std::max)(x - lineWidth / 2, 0), end = (std::min)(x + lineWidth / 2, width()) ; w < end; w++)
 		{
 			for (size_t i = y; i < endY; i++)
 			{

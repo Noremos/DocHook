@@ -39,6 +39,9 @@ export module LayersCore;
 constexpr int DEF_TILE_SIZE = 1000;
 constexpr int DEF_TILE_OFFSET = 300;
 
+#undef max
+#undef min
+
 struct TileProvider
 {
 public:

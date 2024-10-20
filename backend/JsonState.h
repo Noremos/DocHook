@@ -197,7 +197,7 @@ public:
 
 	void scUchar(int ind, buchar& val)
 	{
-		val = static_cast<buchar>((uint)json[ind]);
+		val = static_cast<buchar>((unsigned int)json[ind]);
 	}
 
 	void scBool(int ind, bool& val)

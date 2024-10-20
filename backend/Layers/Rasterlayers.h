@@ -26,6 +26,7 @@ module;
 #include "../MLSettings.h"
 #include "../Bind/Framework.h"
 
+
 #ifdef USE_MODULE
 export module RasterLayers;
 import LayersCore;
@@ -48,7 +49,8 @@ import SimpleImgReaderModule;
 #endif
 
 using LayerMetaProvider = MetadataProvider;
-
+#undef max
+#undef min
 
 MEXPORT enum class ReadType
 {

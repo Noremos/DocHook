@@ -513,7 +513,7 @@ private:
 
 		ImGui::SetCursorPos(displaysBegin);
 		ImVec4 color_multipler(1, 1, 1, opacity);
-		ImGui::Image((void*)(intptr_t)textId, displaySize, ImVec2(0.f,0.f), ImVec2(1.0f, 1.0f), color_multipler);
+		ImGui::Image((ImTextureID)(intptr_t)textId, displaySize, ImVec2(0.f,0.f), ImVec2(1.0f, 1.0f), color_multipler);
 		// list->AddImage((void*)(intptr_t)textId, displayStart + winPos, displayEnd + winPos);
 	}
 };

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <vector>
+
 #ifdef _WIN32
 #include <Windows.h>
 #include <dwmapi.h>
@@ -166,13 +168,13 @@ ImageData CaptureWindowByName(std::string_view searchingName)
 	ImageData imageData;
 
 #ifdef _WIN32
-	POINT pt;
-	pt.x = static_cast<LONG>(mousePos.x);
-	pt.y = static_cast<LONG>(mousePos.y);
-	HWND hwnd = WindowFromPoint(pt);
-	if (hwnd != NULL) {
-		imageData = CaptureWindowWin32(hwnd);
-	}
+	//POINT pt;
+	//pt.x = static_cast<LONG>(mousePos.x);
+	//pt.y = static_cast<LONG>(mousePos.y);
+	//HWND hwnd = WindowFromPoint(pt);
+	//if (hwnd != NULL) {
+	//	imageData = CaptureWindowWin32(hwnd);
+	//}
 #elif __APPLE__
 	CGEventRef event = CGEventCreate(NULL);
 	CGPoint cursorPos = CGEventGetLocation(event);
@@ -219,6 +221,7 @@ ImageData CaptureWindowByName(std::string_view searchingName)
 	return imageData;
 }
 
+#ifdef __APPLE__
 
 std::vector<ImageData> getWindowsPreview()
 {
@@ -243,3 +246,9 @@ std::vector<ImageData> getWindowsPreview()
 
 	return out;
 }
+#else
+std::vector<ImageData> getWindowsPreview()
+{
+	return {};
+}
+#endif

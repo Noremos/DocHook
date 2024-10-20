@@ -36,4 +36,4 @@ typedef unsigned int GLuint;
 
 const int ImGuiWindowFlags_NoDocking = 0;
 
-#define BU8(text) reinterpret_cast<const char*>(u8##text)
+#define BU8(text) text

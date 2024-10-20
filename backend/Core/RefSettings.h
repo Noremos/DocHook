@@ -29,10 +29,10 @@ MEXPORT struct PathBlock
 	bool isFile;
 	BackString filter;
 
-	PathBlock(BackPathStr* path, bool isFile, BackString filter) : path(path), isFile(isFile), filter(filter)
+	constexpr PathBlock(BackPathStr* path, bool isFile, BackString filter) : path(path), isFile(isFile), filter(filter)
 	{ }
 
-	PathBlock(const PathBlock& other) : path(other.path), isFile(other.isFile), filter(other.filter)
+	constexpr PathBlock(const PathBlock& other) : path(other.path), isFile(other.isFile), filter(other.filter)
 	{ }
 };
 
@@ -224,7 +224,7 @@ public:
 		operator=(std::forward<SettingValue>(other));
 	}
 
-	void operator=(const SettingValue& other)
+	constexpr void operator=(const SettingValue& other)
 	{
 		type = other.type;
 		name = other.name;

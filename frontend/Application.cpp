@@ -648,7 +648,7 @@ namespace MyApp
 					int yoff = (maxHeight - data.img.height) / 2;
 					ImGui::SetCursorPos(ImVec2(x + (maxWidth - data.img.width) / 2, y + yoff));
 					ImVec2 size(data.img.width, data.img.height);
-					if (ImGui::ImageButton(data.img.getTexturePtr(), size))
+					if (ImGui::ImageButton((intToStr(j) + "tb").data(), data.img.getTexturePtr(), size))
 					{
 						createBarLayers(data.src);
 						ImGui::CloseCurrentPopup();

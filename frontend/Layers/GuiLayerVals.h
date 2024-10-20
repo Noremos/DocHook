@@ -114,7 +114,7 @@ public:
 				ImGui::Checkbox("##visible", &lay->getCore()->visible);
 
 				ImGui::SameLine();
-				ImGui::Image((void*)(intptr_t)icon.getTextureId(), ImVec2(selHei, selHei));
+				ImGui::Image(icon.getTexturePtr(), ImVec2(selHei, selHei));
 
 				ImGui::SameLine();
 				auto posBef = ImGui::GetCursorPos();
