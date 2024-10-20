@@ -973,6 +973,7 @@ namespace MyApp
 		bool selectToNetxTab = false;
 		if (centerVals.resizble.Begin("ImagePreview"))
 		{
+			windowFrameGuiLayer->lockAtThis(layersVals.lastRealSize);
 			layersVals.draw(guiDisplay);
 			if (centerVals.resizble.clicked)
 			{
@@ -1053,6 +1054,8 @@ namespace MyApp
 						if (ImGui::Button("Снять выделение"))
 						{
 							previewLayer->clear();
+							previewGuiLayer->toGuiData();
+
 							allBarcodeDisaplyGuiLayer->selectedId = -1;
 						}
 					}
