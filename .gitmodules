@@ -4,18 +4,9 @@
 [submodule "side/Barcode"]
 	path = side/Barcode
 	url = git@github.com:Noremos/Barcode.git
-[submodule "side/emhash"]
-	path = side/emhash
-	url = https://github.com/ktprime/emhash
 [submodule "vcpkg"]
 	path = vcpkg
 	url = git@github.com:microsoft/vcpkg.git
-[submodule "side/sol2"]
-	path = side/sol2
-	url = https://github.com/ThePhD/sol2
-[submodule "side/glm"]
-	path = side/glm
-	url = git@github.com:g-truc/glm.git
 [submodule "side/clip"]
 	path = side/clip
 	url = https://github.com/dacap/clip.git
