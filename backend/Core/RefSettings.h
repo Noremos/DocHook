@@ -29,10 +29,10 @@ MEXPORT struct PathBlock
 	bool isFile;
 	BackString filter;
 
-	constexpr PathBlock(BackPathStr* path, bool isFile, BackString filter) : path(path), isFile(isFile), filter(filter)
+	PathBlock(BackPathStr* path, bool isFile, BackStringView filter) : path(path), isFile(isFile), filter(filter)
 	{ }
 
-	constexpr PathBlock(const PathBlock& other) : path(other.path), isFile(other.isFile), filter(other.filter)
+	PathBlock(const PathBlock& other) : path(other.path), isFile(other.isFile), filter(other.filter)
 	{ }
 };
 
@@ -157,49 +157,49 @@ MEXPORT struct SettingValue
 	} type;
 
 public:
-	constexpr SettingValue(const BackString& name, bool& val)
+	SettingValue(const BackString& name, bool& val)
 	{
 		this->name = name;
 		data.b = &val;
 		type = sv_bool;
 	}
 
-	constexpr SettingValue(const BackString& name, int& val)
+	SettingValue(const BackString& name, int& val)
 	{
 		this->name = name;
 		data.i = &val;
 		type = sv_int;
 	}
 
-	constexpr SettingValue(const BackString& name, float& val)
+	SettingValue(const BackString& name, float& val)
 	{
 		this->name = name;
 		data.f = &val;
 		type = sv_double;
 	}
 
-	constexpr SettingValue(const BackString& name, double& val)
+	SettingValue(const BackString& name, double& val)
 	{
 		this->name = name;
 		data.d = &val;
 		type = sv_double;
 	}
 
-	constexpr SettingValue(const BackString& name, BackString& val)
+	SettingValue(const BackString& name, BackString& val)
 	{
 		this->name = name;
 		data.s = &val;
 		type = sv_str;
 	}
 
-	constexpr SettingValue(const BackString& name, BackPathStr& val, bool fileMode, BackStringView filter = "")
+	SettingValue(const BackString& name, BackPathStr& val, bool fileMode, BackStringView filter = "")
 	{
 		this->name = name;
-		data.p = new PathBlock(&val, fileMode, filter.data());
+		data.p = new PathBlock(&val, fileMode, filter);
 		type = sv_path;
 	}
 
-	constexpr SettingValue(const BackString& name, int* selected, std::initializer_list<BackString> vals)
+	SettingValue(const BackString& name, int* selected, std::initializer_list<BackString> vals)
 	{
 		this->name = name;
 		data.e = new EnumBlock(selected, vals);
@@ -214,7 +214,7 @@ public:
 		type = sv_enum;
 	}
 
-	constexpr SettingValue(const SettingValue& other)
+	SettingValue(const SettingValue& other)
 	{
 		operator=(other);
 	}
@@ -242,7 +242,7 @@ public:
 		}
 	}
 
-	void operator=(SettingValue&& other)
+	constexpr void operator=(SettingValue&& other)
 	{
 		type = other.type;
 		name = std::move(other.name);

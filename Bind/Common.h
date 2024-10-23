@@ -5,6 +5,7 @@
 #include <string_view>
 //#include <random>
 #include <fstream>
+#include <cmath>
 
 using BackStringView = std::string_view;
 using BackString = std::string;
@@ -153,7 +154,7 @@ struct TPoint
 	double dist(const TPoint& other) const {
 		int dx = x - other.x;
 		int dy = y - other.y;
-		return sqrt(dx * dx + dy * dy);
+		return std::sqrt(dx * dx + dy * dy);
 	}
 };
 

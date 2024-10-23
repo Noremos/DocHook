@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.22)
 if (BUILD_TEST)
     set(BTARGET SatTests)
 else()
@@ -21,7 +21,7 @@ file(GLOB_RECURSE SOURCES
     "Bind/*.cpp"
     "side/imgui/backends/imgui_impl_glfw.cpp"
     "side/imgui/backends/imgui_impl_opengl3.cpp"
-    "side/barcode/PrjBarlib/source/*.cpp"
+    "side/Barcode/PrjBarlib/source/*.cpp"
 )
 list(FILTER SOURCES EXCLUDE REGEX ".*barcodeCreatorCloud\\.cpp$")
 list(FILTER SOURCES EXCLUDE REGEX ".*Source\\.cpp$")
@@ -34,7 +34,7 @@ set(SIDE_SOURCES
     side/imgui/imgui_tables.cpp
     side/imgui/imgui_widgets.cpp
     side/fpng/fpng.cpp
-    side/barcode/PrjBarlib/modules/tiffreader.cpp
+    side/Barcode/PrjBarlib/modules/tiffreader.cpp
 )
 
 # add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
