@@ -55,7 +55,7 @@ struct vec3
 	}
 	float length()
 	{
-		return std::sqrtf(x * x + y * y + z * z);
+		return sqrtf(x * x + y * y + z * z);
 	}
 };
 
