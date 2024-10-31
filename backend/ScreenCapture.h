@@ -463,6 +463,7 @@ void getWindowMeta(ImageData& imgData, Window window, Display* display) {
 
 void CaptureWindowLinux(ImageData& imgData, Window window, Display* display)
 {
+	XMapRaised(display, window);
     XImage *image = XGetImage(display, window, 0, 0, imgData.width, imgData.height, AllPlanes, ZPixmap);
     imgData.data.reset(new char[4 * imgData.width * imgData.height]);
     unsigned long red_mask   = image->red_mask;

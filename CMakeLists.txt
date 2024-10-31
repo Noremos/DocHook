@@ -33,7 +33,6 @@ set(SIDE_SOURCES
     side/imgui/imgui_draw.cpp
     side/imgui/imgui_tables.cpp
     side/imgui/imgui_widgets.cpp
-    side/fpng/fpng.cpp
     side/Barcode/PrjBarlib/modules/tiffreader.cpp
 )
 
@@ -67,10 +66,6 @@ if (BUILD_TEST)
     set_target_properties(${BTARGET} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../
     )
-
-    target_include_directories(${BTARGET}
-        PUBLIC
-        Tests/googletest)
 
     target_link_libraries(${BTARGET} PUBLIC GTest::GTest GTest::Main)
 

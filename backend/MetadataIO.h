@@ -5,10 +5,10 @@
 #include <istream>
 #include <ostream>
 #include "../Bind/Json.h"
-#include "Usings.h"
+#include "../Bind/Usings.h"
 
 
-#include "../../side/Barcode/PrjBarlib/modules/StateBinFile.h"
+#include "../side/Barcode/PrjBarlib/modules/StateBinFile.h"
 #include "JsonState.h"
 
 

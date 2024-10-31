@@ -182,7 +182,7 @@ public:
 
 	static BackPathStr getDefaultFontPath()
 	{
-		return getFontsDir() / "Arial.ttf";
+		return getFontsDir() / "arial.ttf";
 	}
 };
 

@@ -64,6 +64,10 @@ using ItemVec2 = ImVec2; // The top-left is an Item (image) coords
 struct TextureId
 {
 	GLuint textureId;
+	TextureId(GLuint textureId = 0)
+	{
+
+	}
 	~TextureId()
 	{
 		glDeleteTextures(1, &textureId);

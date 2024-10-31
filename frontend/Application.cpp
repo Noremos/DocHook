@@ -7,9 +7,9 @@
 #include <memory>
 #include <future>
 #include <iostream>
-#include "Barcode/PrjBarlib/include/barcodeCreator.h"
+#include "../side/Barcode/PrjBarlib/include/barcodeCreator.h"
 
-#include "../../backend/ProjectSettings.h"
+#include "../backend/ProjectSettings.h"
 #include "../Bind/Framework.h"
 
 #include "../backend/MatrImg.h"

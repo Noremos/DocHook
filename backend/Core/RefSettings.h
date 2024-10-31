@@ -13,7 +13,7 @@ module;
 #include <functional>
 #include <istream>
 #include <ostream>
-#include "../Bind/Json.h"
+#include "../../Bind/Json.h"
 #include "Usings.h"
 
 #ifdef USE_MODULE
