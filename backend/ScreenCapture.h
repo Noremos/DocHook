@@ -343,7 +343,7 @@ std::vector<ImageData> getWindowsPreview()
 
 	return out;
 }
-#eif _WIN32
+#elif _WIN32
 
 struct CGRect {
     struct {
