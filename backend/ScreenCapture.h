@@ -18,8 +18,19 @@
 #elif __linux__
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+
+#include <vector>
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+// #include <X11/extensions/Xcomposite.h>
+#include <X11/Xutil.h>
+#include <X11/Xmd.h>
+#include <X11/X.h>
+#include <string>
+
 #endif
-#include "imgui.h"
+
+#include <memory>
 
 
 // #include <ScreenCaptureKit/ScreenCaptureKit.h>
@@ -42,7 +53,8 @@ bool strEquals(std::string winName, std::string supstr)
 }
 
 // A placeholder structure to hold image data. Replace with your actual image data structure.
-struct ImageData {
+struct ImageData
+{
 	std::unique_ptr<char> data;
 	int width = 0;
 	int height = 0;
@@ -331,7 +343,7 @@ std::vector<ImageData> getWindowsPreview()
 
 	return out;
 }
-#else
+#eif _WIN32
 
 struct CGRect {
     struct {
@@ -366,10 +378,11 @@ CGRect getWindowBounds(HWND hwnd) {
     return windowBounds;
 }
 
-bool notFullWindow(HWND hwnd) {
+bool notFullWindow(HWND hwnd)
+{
     // Get the window title
 	int length = GetWindowTextLength(hwnd);
-	
+
 	// Get the window style
 	LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
 
@@ -547,11 +560,108 @@ std::vector<ImageData> getWindowsPreview()
         // Capture window image
         CaptureWindowWin(imgData, hwnd);
 
-       
+
         images.push_back(std::move(imgData));
 
         return TRUE; // Continue enumeration
     }, reinterpret_cast<LPARAM>(&out));
+
+    return out;
+}
+
+#else
+
+
+
+
+bool notFullWindow(Window window, Display* display) {
+    // Check if the window should be skipped (e.g., minimized or not visible)
+    XWindowAttributes attr;
+    XGetWindowAttributes(display, window, &attr);
+    return (attr.map_state != IsViewable);
+}
+
+void getWindowMeta(ImageData& imgData, Window window, Display* display) {
+    imgData.winId = window;
+    XWindowAttributes attr;
+    XGetWindowAttributes(display, window, &attr);
+    imgData.width = attr.width;
+    imgData.height = attr.height;
+}
+
+void CaptureWindowLinux(ImageData& imgData, Window window, Display* display)
+{
+	XMapRaised(display, window);
+    XImage *image = XGetImage(display, window, 0, 0, imgData.width, imgData.height, AllPlanes, ZPixmap);
+    imgData.data.reset(new char[4 * imgData.width * imgData.height]);
+    unsigned long red_mask   = image->red_mask;
+    unsigned long green_mask = image->green_mask;
+    unsigned long blue_mask  = image->blue_mask;
+
+	auto* pixelData = imgData.data.get();
+    for (int y = 0; y < imgData.height; ++y)
+	{
+        for (int x = 0; x < imgData.width; ++x)
+		{
+            unsigned long pixel = XGetPixel(image, x, y);
+
+            unsigned char blue  = (pixel & blue_mask);
+            unsigned char green = (pixel & green_mask) >> 8;
+            unsigned char red   = (pixel & red_mask) >> 16;
+
+            pixelData[(y * imgData.width + x) * 4 + 0] = red;
+            pixelData[(y * imgData.width + x) * 4 + 1] = green;
+            pixelData[(y * imgData.width + x) * 4 + 2] = blue;
+            pixelData[(y * imgData.width + x) * 4 + 3] = (char)255; // Alpha
+        }
+    }
+    XDestroyImage(image);
+}
+
+std::vector<ImageData> getWindowsPreview()
+{
+    std::vector<ImageData> out;
+    Display* display = XOpenDisplay(nullptr);
+    if (!display) {
+        return out; // Failed to open display
+    }
+
+    Window root = DefaultRootWindow(display);
+    Window parent;
+    Window *children;
+    unsigned int nchildren;
+
+    if (XQueryTree(display, root, &root, &parent, &children, &nchildren) == 0) {
+        return out; // Failed to query window tree
+    }
+
+    for (unsigned int i = 0; i < nchildren; ++i) {
+        Window window = children[i];
+
+        if (!notFullWindow(window, display)) {
+            ImageData imgData;
+
+            getWindowMeta(imgData, window, display);
+
+            // Skip duplicates
+            bool duplicate = false;
+            for (const auto& image : out) {
+                if (image.winId == imgData.winId) {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (duplicate) {
+                continue;
+            }
+
+            CaptureWindowLinux(imgData, window, display);
+            out.push_back(std::move(imgData));
+        }
+    }
+    XFree(children);
+    XCloseDisplay(display);
 
     return out;
 }

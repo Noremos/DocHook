@@ -11,7 +11,7 @@ module;
 #include "Barcode/PrjBarlib/include/barcodeCreator.h"
 #include "Usings.h"
 
-#include "../../side/Barcode/PrjBarlib/modules/StateBinFile.h"
+#include "../side/Barcode/PrjBarlib/modules/StateBinFile.h"
 
 #include "../Bind/MHashMap.h"
 #include "Interfaces/IItem.h"

@@ -758,5 +758,3 @@ MEXPORT void imwrite(const BackPathStr& path, const BackImage& mat);
 
 MEXPORT BackImage imreadFromMemory(const buchar* data, size_t size);
 MEXPORT using MemImgData = std::vector<uint8_t>;
-
-MEXPORT MemImgData imwriteToMemory(const BackImage& mat);

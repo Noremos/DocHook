@@ -3,12 +3,11 @@
 // #define IMGUI_DEFINE_MATH_OPERATORS
 
 
-#include "imgui.h"
-#include <imgui_internal.h>
+#include "../side/imgui/imgui.h"
+#include "../side/imgui/imgui_internal.h"
 
-#include "IconsFontAwesome5.h"
+#include "../side/IconsFontAwesome5.h"
 
-#include "../Bind/Usings.h"
 
 inline ImVec2  operator*(const ImVec2& lhs, const float rhs)     { return ImVec2(lhs.x * rhs, lhs.y * rhs); }
 inline ImVec2  operator/(const ImVec2& lhs, const float rhs)     { return ImVec2(lhs.x / rhs, lhs.y / rhs); }

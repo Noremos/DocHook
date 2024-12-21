@@ -1,37 +1,32 @@
-# export LDFLAGS="-L/opt/homebrew/opt/llvm/lib -fdiagnostics-color"
-export CPPFLAGS="-I/opt/homebrew/opt/llvm/include '-fdiagnostics-color"
-export LDFLAGS="-L/opt/homebrew/opt/llvm/lib -fdiagnostics-color -L/opt/homebrew/opt/llvm/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm/lib/c++"
-export CC=/opt/homebrew/opt/llvm/bin/clang
-export CXX=/opt/homebrew/opt/llvm/bin/clang++
-export CXXFLAGS='-fdiagnostics-color'
-export CFLAGS='-fdiagnostics-color'
-# export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+#!/bin/bash
 
-export EXTRA='-DBUILD_TEST:BOOL=false'
-export OUT='Build/Temp'
-
-# Проверяем передан ли аргумент
 if [ -z "$1" ]; then
-    # Если аргумент не передан, задаем значение по умолчанию
-    build_type="Debug"
-else
-    if [ "$1" == "Tests" ]; then
-        EXTRA='-DBUILD_TEST:BOOL=true'
-        OUT='Tests/Temp'
-        echo "RUN TESTS..."
-    else
-        echo "RUN $1 Build..."
-    fi
-
-    # Иначе, используем переданный аргумент
-    build_type="$1"
+    echo "Build type arg (1) is missing"
+    exit 1
 fi
+
+if [ -z "$2" ]; then
+    echo "Build system arg (2) is missing"
+    exit 1
+fi
+
+build_type="$1"
+
+if [ $build_type = "Tests" ]; then
+    EXTRA='-DBUILD_TEST:BOOL=true'
+    OUT='Tests/Temp'
+    echo "RUN TESTS..."
+else
+    echo "RUN $1 Build..."
+fi
+
+
 
 export OUT="Build/Temp/${build_type}"
 # export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
 # export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
 
-cmake -B "${OUT}" -S . -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE="${build_type}" "${EXTRA}"
+cmake -B "${OUT}" -S . -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -G "$2" -DCMAKE_BUILD_TYPE="${build_type}" "${EXTRA}"
 cmake --build "${OUT}"
 retVal=$?
 if [ $retVal -ne 0 ]; then

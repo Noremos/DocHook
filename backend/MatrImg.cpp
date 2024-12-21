@@ -1,7 +1,5 @@
 #include "MatrImg.h"
 
-#include "fpng/fpng.h"
-
 #define TINY_DNG_LOADER_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 // #include "stb_image.h"
@@ -15,7 +13,6 @@
 
 void FrameworkInit()
 {
-	fpng::fpng_init();
 }
 
 MEXPORT BackImage imread(const BackString& path)
@@ -92,8 +89,8 @@ BackImage imread(const BackPathStr& path)
 
 void imwrite(const BackString& path, const BackImage& mat)
 {
-	fpng::fpng_encode_image_to_file(path.c_str(), mat.data, mat.width(), mat.height(), mat.channels());
-	// stbi_write_png(path.c_str(), mat.width(), mat.height(), mat.channels(), mat.data, 0); // so slow...
+	// fpng::fpng_encode_image_to_file(path.c_str(), mat.data, mat.width(), mat.height(), mat.channels());
+	stbi_write_png(path.c_str(), mat.width(), mat.height(), mat.channels(), mat.data, 0); // so slow...
 }
 
 void imwrite(const BackPathStr& path, const BackImage& mat)
@@ -126,13 +123,4 @@ BackImage imreadFromMemory(const buchar* data, size_t size)
 		chls = req;
 	}
 	return BackImage(width, height, chls, image_data, false, true);
-}
-
-MemImgData imwriteToMemory(const BackImage& mat)
-{
-	MemImgData out_buf;
-	[[maybe_unused]]
-	bool r = fpng::fpng_encode_image_to_memory(mat.getData(), mat.width(), mat.height(), mat.channels(), out_buf);
-	assert(r);
-	return out_buf;
 }
