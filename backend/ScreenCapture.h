@@ -26,6 +26,20 @@
 // #include <CoreGraphics/CoreGraphics.h>
 // #include <Foundation/Foundation.h>
 
+bool strEquals(std::string winName, std::string supstr)
+{
+	for (size_t i = 0; i < winName.length(); i++)
+	{
+		winName[i] = toupper(winName[i]);
+	}
+
+	for (size_t i = 0; i < supstr.length(); i++)
+	{
+		supstr[i] = toupper(supstr[i]);
+	}
+
+	return winName.find(supstr) != std::string::npos;
+}
 
 // A placeholder structure to hold image data. Replace with your actual image data structure.
 struct ImageData {
@@ -46,6 +60,10 @@ ImageData CaptureWindowWin32(HWND hwnd) {
 	// Implementation placeholder
 	return imgData;
 }
+void CaptureWindowWin(ImageData& imgData, HWND hwnd);
+std::string getWindowMeta(ImageData& data, HWND hwnd);
+bool notFullWindow(HWND hwnd);
+
 #elif __APPLE__
 
 
@@ -173,17 +191,50 @@ ImageData CaptureWindowLinux(Window window) {
 // Main cross-platform function
 ImageData CaptureWindowByName(std::string_view searchingName)
 {
-	ImageData imageData;
 
 #ifdef _WIN32
-	//POINT pt;
-	//pt.x = static_cast<LONG>(mousePos.x);
-	//pt.y = static_cast<LONG>(mousePos.y);
-	//HWND hwnd = WindowFromPoint(pt);
-	//if (hwnd != NULL) {
-	//	imageData = CaptureWindowWin32(hwnd);
-	//}
+
+	struct Tempo
+	{
+		ImageData out;
+		std::string winname;
+		bool found = false;
+	};
+
+	Tempo temp;
+	temp.winname = std::string(searchingName.data(), searchingName.length());
+
+	EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL 
+	{
+		Tempo& temp = *reinterpret_cast<Tempo*>(lParam);
+		ImageData& imgData = temp.out;
+		if (temp.found)
+			return TRUE;
+
+		// Skip minimized or hidden windows
+		if (notFullWindow(hwnd)) {
+			return TRUE; // Continue enumeration
+		}
+
+		// Get window metadata
+		getWindowMeta(imgData, hwnd);
+
+		if (!strEquals(imgData.name, temp.winname))
+		{
+			return TRUE;
+		}
+
+		// Capture window image
+		CaptureWindowWin(imgData, hwnd);
+		temp.found = true;
+
+		return TRUE; // Continue enumeration
+	}, reinterpret_cast<LPARAM>(&temp));
+
+	return std::move(temp.out);
+
 #elif __APPLE__
+	ImageData imageData;
 	CGEventRef event = CGEventCreate(NULL);
 	CGPoint cursorPos = CGEventGetLocation(event);
 	CFRelease(event);
@@ -209,24 +260,50 @@ ImageData CaptureWindowByName(std::string_view searchingName)
 	}
 
 	CFRelease(windowList);
+	return imageData;
 #elif __linux__
-	Display *display = XOpenDisplay(NULL);
-	if (display) {
-		Window root = DefaultRootWindow(display);
-		Window retRoot, retChild;
-		int rootX, rootY, winX, winY;
-		unsigned int mask;
+	{
+		ImageData imageData;
+		Display* display = XOpenDisplay(NULL);
 
-		if (XQueryPointer(display, root, &retRoot, &retChild, &rootX, &rootY, &winX, &winY, &mask)) {
-			if (retChild != None) {
-				imageData = CaptureWindowLinux(retChild);
+		Window root = DefaultRootWindow(display);
+		Window parent;
+		Window* children;
+		unsigned int num_children;
+
+		// Get all child windows of the root window
+		if (XQueryTree(display, root, &root, &parent, &children, &num_children) == 0)
+		{
+			return false;
+		}
+
+		std::string searchingStrName(searchingName.data(), searchingName.length());
+		for (unsigned int i = 0; i < num_children; ++i)
+		{
+			Window window = children[i];
+
+			// Skip if it's a full-screen window
+			if (notFullWindow(display, window)) {
+				continue;
+			}
+
+			// Check if the window title matches the search name (case insensitive)
+			if (strEquals(windowName, searchingStrName))
+			{
+				// Capture the window
+				CaptureWindow(display, window);
+				XFree(children);
+				break;
 			}
 		}
-		XCloseDisplay(display);
+
+		XFree(children);
+
+		return imageData;
 	}
+
 #endif
 
-	return imageData;
 }
 
 #ifdef __APPLE__
