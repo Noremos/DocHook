@@ -348,6 +348,42 @@ std::string getWindowMeta(ImageData& data, HWND hwnd) {
 
     return data.name;
 }
+//
+//ImageData takeFullScreen()
+//{
+//	ImageData imgData;
+//
+//	HDC hScreenDC = GetDC(NULL);
+//	// and a device context to put it in
+//	HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
+//
+//	int width = GetSystemMetrics(SM_CXSCREEN);
+//	int height = GetSystemMetrics(SM_CYSCREEN);
+//	imgData.width = width;
+//	imgData.height = height;
+//
+//	// hBitmap is a HBITMAP that i declared globally to use within WM_PAINT
+//	// maybe worth checking these are positive values
+//	auto hBitmap = CreateCompatibleBitmap(hScreenDC, width, height);
+//
+//	// get a new bitmap
+//	HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemoryDC, hBitmap);
+//
+//	BitBlt(hMemoryDC, 0, 0, width, height, hScreenDC, 0, 0, SRCCOPY);
+//	hBitmap = (HBITMAP)SelectObject(hMemoryDC, hOldBitmap);
+//
+//	// clean up
+//	DeleteDC(hMemoryDC);
+//	ReleaseDC(NULL, hScreenDC);
+//
+//
+//	// Calculate width and height
+//
+//
+//	imgData.channels = hBitmap.bmBitsPixel / 8; // RGBA
+//	imgData.data.reset(new char[bitmap.bmWidthBytes * bitmap.bmHeight]); // allocate enough for the data
+//	GetBitmapBits(hBitmap, bitmap.bmWidthBytes * bitmap.bmHeight, imgData.data.get());
+//}
 
 // Function to capture the window image in Windows
 void CaptureWindowWin(ImageData& imgData, HWND hwnd) {
@@ -369,25 +405,40 @@ void CaptureWindowWin(ImageData& imgData, HWND hwnd) {
     // Render the window into the memory device context
     BitBlt(hdcMem, 0, 0, imgData.width, imgData.height, hdc, 0, 0, SRCCOPY);
 
-    // Clean up the device context
-    ReleaseDC(hwnd, hdc);
-
     // Allocate and copy image data to imgData.data
     BITMAP bitmap;
     GetObject(hBitmap, sizeof(bitmap), &bitmap);
 
-    // Assuming a 32-bit bitmap (you can adjust based on your needs)
-    imgData.channels = bitmap.bmBitsPixel / 8; // RGBA
-    imgData.data.reset(new char[bitmap.bmWidthBytes * bitmap.bmHeight]); // allocate enough for the data
-    GetBitmapBits(hBitmap, bitmap.bmWidthBytes * bitmap.bmHeight, imgData.data.get());
+	BITMAPINFO bmpInfo;
+	ZeroMemory(&bmpInfo, sizeof(bmpInfo));
+	bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmpInfo.bmiHeader.biWidth = bitmap.bmWidth;
+	bmpInfo.bmiHeader.biHeight = -bitmap.bmHeight;
+	bmpInfo.bmiHeader.biPlanes = bitmap.bmPlanes;
+	bmpInfo.bmiHeader.biBitCount = bitmap.bmBitsPixel;
+	bmpInfo.bmiHeader.biCompression = BI_RGB;  // Assuming uncompressed bitmap
+
+	// This function retrieves the bitmap data and stores it in imgData.data.get()
+	// Assuming a 32-bit bitmap (you can adjust based on your needs)
+	imgData.channels = bitmap.bmBitsPixel / 8; // RGBA
+	imgData.data.reset(new char[bitmap.bmWidthBytes * bitmap.bmHeight]); // allocate enough for the data
+	imgData.width = bitmap.bmWidth;
+	imgData.height = bitmap.bmHeight;
+	int result = GetDIBits(hdcMem, hBitmap, 0, bitmap.bmHeight, imgData.data.get(), &bmpInfo, DIB_RGB_COLORS);
+
+	char* raw = imgData.data.get();
+	for (size_t i = 0; i < imgData.height * imgData.width * imgData.channels; i += imgData.channels)
+	{
+		// BGR TO RGB
+		std::swap(raw[i], raw[i + 2]);
+	}
+
+	// Clean up the device context
+	ReleaseDC(hwnd, hdc);
 
     // Cleanup
     DeleteObject(hBitmap);
     DeleteDC(hdcMem);
-
-    // Set width according to bitmap
-    imgData.width = bitmap.bmWidth;
-    imgData.height = bitmap.bmHeight;
 }
 
 std::vector<ImageData> getWindowsPreview()
