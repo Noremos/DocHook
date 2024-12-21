@@ -604,10 +604,10 @@ namespace MyApp
 	void drawPreview()
 	{
 		// Draw image
-		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+		const ImGuiWindow* viewport = ImGui::GetCurrentWindow();
 		const float windowWidth = viewport->Size.x * 0.8;
 		const float windowHeight = viewport->Size.y * 0.8;
-
 
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -627,52 +627,45 @@ namespace MyApp
 			const int columns = int(std::ceil((windowWidth - margin) / itemWidthWithMargin));
 			const int rows = int(std::ceil(float(images.size()) / columns));
 
-			// ImGui::SetWindowSize(ImVec2(columns * (itemWidth + 10) + 10, rows * (itemHeight + 10) + 10));
-
-			for (int i = 0; i < rows; i++)
+			float x = margin;
+			float y = topMargin;
+			for (size_t i = 0; i < images.size(); i++)
 			{
-				float x = margin;
-				float y = topMargin + i * (itemWidthWithMargin);
-				// ImGui::BeginChild(("##WrapRow" + std::to_string(i)).c_str(), ImVec2(0, itemHeight * 1.2f), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-				for (int j = 0; j < columns && (i + j * rows < images.size()); j++)
+				ImgData& data = images[i];
+				ImGui::PushID(data.winId);
+
+				auto textWidth = ImGui::CalcTextSize(data.name.c_str()).x;
+				int maxWidth = std::max<int>(data.img.width, textWidth);
+				int maxHeight = std::max<int>(data.img.height, itemHeight);
+
+				if (x + maxWidth > windowWidth)
 				{
-					ImgData& data = images[i + j * rows];
-					ImGui::PushID(data.winId);
-
-					auto textWidth   = ImGui::CalcTextSize(data.name.c_str()).x;
-					int maxWidth = std::max<int>(data.img.width, textWidth);
-
-					int maxHeight = std::max<int>(data.img.height, itemHeight);
-
-
-					int yoff = (maxHeight - data.img.height) / 2;
-					ImGui::SetCursorPos(ImVec2(x + (maxWidth - data.img.width) / 2, y + yoff));
-					ImVec2 size(data.img.width, data.img.height);
-					if (ImGui::ImageButton((intToStr(j) + "tb").data(), data.img.getTexturePtr(), size))
-					{
-						createBarLayers(data.src);
-						ImGui::CloseCurrentPopup();
-					}
-
-					ImGui::SetCursorPos(ImVec2(x + (maxWidth - textWidth) / 2 , y + size.y + yoff + 20));
-					ImGui::Text("%s", data.name.data());
-					ImGui::PopID();
-
-					x += maxWidth + margin;
-
-
-					// ImGui::SameLine();
+					x = margin;
+					y += itemWidthWithMargin;
 				}
-				// ImGui::EndChild();
+
+				ImGui::SetCursorPos(ImVec2(x, y));
+
+				int yoff = (maxHeight - data.img.height) / 2;
+				ImGui::SetCursorPos(ImVec2(x + (maxWidth - data.img.width) / 2, y + yoff));
+				ImVec2 size(data.img.width, data.img.height);
+				if (ImGui::ImageButton((intToStr(i) + "tb").data(), data.img.getTexturePtr(), size))
+				{
+					createBarLayers(data.src);
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::SetCursorPos(ImVec2(x + (maxWidth - textWidth) / 2, y + size.y + yoff + 20));
+				ImGui::Text("%s", data.name.data());
+				ImGui::PopID();
+
+				x += maxWidth + margin;
 			}
 
-			// for (ImgData& data : images)
-			// {
-			// 	data.img.drawImage("##ImgPreview", {0,0}, {0, 0});
-			// 	ImGui::Text(data.name.data());
-			// }
+			x = margin;
+			y += itemWidthWithMargin;
 
-			ImGui::SetCursorPos(ImVec2(x, topMargin + rows * (itemWidthWithMargin) + 20));
+			ImGui::SetCursorPos(ImVec2(x,y));
 			ImGui::Separator();
 
 			ImGui::SetItemDefaultFocus();
