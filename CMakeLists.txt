@@ -120,5 +120,10 @@ target_link_libraries(${BTARGET} PRIVATE glfw)
 find_package(GLEW REQUIRED)
 target_link_libraries(${BTARGET} PRIVATE GLEW::GLEW)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(X11 REQUIRED)
+    target_link_libraries(${BTARGET} PRIVATE X11::X11)
+endif()
+
 # find_package(clip REQUIRED)
 target_link_libraries(${BTARGET} PRIVATE clip)

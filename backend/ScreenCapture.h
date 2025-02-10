@@ -196,6 +196,10 @@ ImageData CaptureWindowLinux(Window window) {
 	// Implementation placeholder
 	return imgData;
 }
+
+bool notFullWindow(Window window, Display* display);
+void getWindowMeta(ImageData& imgData, Window window, Display* display);
+
 #endif
 
 
@@ -216,7 +220,7 @@ ImageData CaptureWindowByName(std::string_view searchingName)
 	Tempo temp;
 	temp.winname = std::string(searchingName.data(), searchingName.length());
 
-	EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL 
+	EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL
 	{
 		Tempo& temp = *reinterpret_cast<Tempo*>(lParam);
 		ImageData& imgData = temp.out;
@@ -286,7 +290,7 @@ ImageData CaptureWindowByName(std::string_view searchingName)
 		// Get all child windows of the root window
 		if (XQueryTree(display, root, &root, &parent, &children, &num_children) == 0)
 		{
-			return false;
+			return imageData;
 		}
 
 		std::string searchingStrName(searchingName.data(), searchingName.length());
@@ -295,15 +299,18 @@ ImageData CaptureWindowByName(std::string_view searchingName)
 			Window window = children[i];
 
 			// Skip if it's a full-screen window
-			if (notFullWindow(display, window)) {
+			if (notFullWindow(window, display)) {
 				continue;
 			}
 
+			// Get window metadata
+			getWindowMeta(imageData, window, display);
+
 			// Check if the window title matches the search name (case insensitive)
-			if (strEquals(windowName, searchingStrName))
+			if (strEquals(imageData.name, searchingStrName))
 			{
 				// Capture the window
-				CaptureWindow(display, window);
+				CaptureWindowLinux(window);
 				XFree(children);
 				break;
 			}
@@ -322,7 +329,7 @@ ImageData CaptureWindowByName(std::string_view searchingName)
 
 std::vector<ImageData> getWindowsPreview()
 {
-	std::vector<ImageData> out;
+	std::vector<ImageData> out;-
 	ImageData imageData;
 
 	CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
@@ -578,6 +585,13 @@ bool notFullWindow(Window window, Display* display) {
     // Check if the window should be skipped (e.g., minimized or not visible)
     XWindowAttributes attr;
     XGetWindowAttributes(display, window, &attr);
+
+	if (attr.width <= 1 || attr.height <= 1)
+		return true;
+
+	if (attr.depth <= 0)
+		return true;
+
     return (attr.map_state != IsViewable);
 }
 
@@ -587,35 +601,55 @@ void getWindowMeta(ImageData& imgData, Window window, Display* display) {
     XGetWindowAttributes(display, window, &attr);
     imgData.width = attr.width;
     imgData.height = attr.height;
+    imgData.channels = attr.depth / 8;
+
+	XTextProperty prop;
+	Status s;
+
+	s = XGetWMName(display, window, &prop); // see man
+	if (s)
+	{
+		int count = 0, result;
+		char **list = NULL;
+		result = XmbTextPropertyToTextList(display, &prop, &list, &count); // see man
+		if(result == Success)
+		{
+		    imgData.name = list[count - 1];
+		}
+	}
 }
 
 void CaptureWindowLinux(ImageData& imgData, Window window, Display* display)
 {
-	XMapRaised(display, window);
+	XMapWindow(display, window);
     XImage *image = XGetImage(display, window, 0, 0, imgData.width, imgData.height, AllPlanes, ZPixmap);
-    imgData.data.reset(new char[4 * imgData.width * imgData.height]);
+    imgData.data.reset(new char[imgData.channels * imgData.width * imgData.height]);
     unsigned long red_mask   = image->red_mask;
     unsigned long green_mask = image->green_mask;
     unsigned long blue_mask  = image->blue_mask;
 
+	const int channels = imgData.channels;
+
 	auto* pixelData = imgData.data.get();
-    for (int y = 0; y < imgData.height; ++y)
+	for (int y = 0; y < imgData.height; ++y)
 	{
-        for (int x = 0; x < imgData.width; ++x)
+		for (int x = 0; x < imgData.width; ++x)
 		{
-            unsigned long pixel = XGetPixel(image, x, y);
+			unsigned long pixel = XGetPixel(image, x, y);
 
-            unsigned char blue  = (pixel & blue_mask);
+            unsigned char blue = pixel & blue_mask;
             unsigned char green = (pixel & green_mask) >> 8;
-            unsigned char red   = (pixel & red_mask) >> 16;
+            unsigned char red = (pixel & red_mask) >> 16;
 
-            pixelData[(y * imgData.width + x) * 4 + 0] = red;
-            pixelData[(y * imgData.width + x) * 4 + 1] = green;
-            pixelData[(y * imgData.width + x) * 4 + 2] = blue;
-            pixelData[(y * imgData.width + x) * 4 + 3] = (char)255; // Alpha
-        }
-    }
-    XDestroyImage(image);
+			const int offset = (y * imgData.width + x) * channels;
+			pixelData[offset + 0] = red;
+			pixelData[offset + 1] = green;
+			pixelData[offset + 2] = blue;
+			if (channels == 4)
+				pixelData[offset + 3] = (char)255;
+		}
+	}
+	XDestroyImage(image);
 }
 
 std::vector<ImageData> getWindowsPreview()
@@ -635,30 +669,35 @@ std::vector<ImageData> getWindowsPreview()
         return out; // Failed to query window tree
     }
 
-    for (unsigned int i = 0; i < nchildren; ++i) {
+	for (unsigned int i = 0; i < nchildren; ++i)
+	{
         Window window = children[i];
 
-        if (!notFullWindow(window, display)) {
-            ImageData imgData;
+        if (notFullWindow(window, display))
+			continue;
 
-            getWindowMeta(imgData, window, display);
+		ImageData imgData;
+		getWindowMeta(imgData, window, display);
+		if (imgData.name.empty())
+			continue;
 
-            // Skip duplicates
-            bool duplicate = false;
-            for (const auto& image : out) {
-                if (image.winId == imgData.winId) {
-                    duplicate = true;
-                    break;
-                }
-            }
+		// Skip duplicates
+		bool duplicate = false;
+		for (const auto& image : out)
+		{
+			if (image.winId == imgData.winId)
+			{
+				duplicate = true;
+				break;
+			}
+		}
 
-            if (duplicate) {
-                continue;
-            }
+		if (duplicate) {
+			continue;
+		}
 
-            CaptureWindowLinux(imgData, window, display);
-            out.push_back(std::move(imgData));
-        }
+		CaptureWindowLinux(imgData, window, display);
+		out.push_back(std::move(imgData));
     }
     XFree(children);
     XCloseDisplay(display);
